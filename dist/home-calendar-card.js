@@ -7,7 +7,7 @@
  *
  * https://github.com/mimikm/Home-Calendar-Card
  */
-const CARD_VERSION = "1.19.0";
+const CARD_VERSION = "1.20.0";
 
 const DEFAULT_COLORS = ["#4285F4", "#EA4335", "#34A853", "#F9AB00", "#A142F4", "#24C1E0", "#F06292", "#FF7043"];
 
@@ -117,7 +117,7 @@ const I18N = {
     ld_todo_pop: "Shown as a pop-up from a small button in the corner – the calendar takes over its space.", ld_todo_close: "Close the pop-up after (seconds)",
     ld_drag_line: "Drag to make the columns or rows on each side bigger or smaller",
     ld_title: "Layout designer", ld_on: "on", ld_intro: "Arrange the card on a grid: move and resize blocks like the date, clock, weather, calendar and to-do list. Your current layout stays as it is until you start.", ld_start: "Design my own layout", ld_or_preset: "or start from", ld_pre_classic: "Classic", ld_pre_wall: "Wall display", ld_pre_tv: "TV – no buttons", ld_pre_phone: "Compact phone", ld_desktop: "Desktop", ld_phone: "Phone", ld_presets: "Presets", ld_reset: "Reset", ld_phone_auto: "Phones stack the blocks automatically. Create a phone layout to arrange them yourself.", ld_make_phone: "Create phone layout", ld_copy_desktop: "Copy desktop layout", ld_del_phone: "Remove phone layout", ld_bp: "Phone layout below (px)", ld_off: "Back to the classic layout", ld_help: "Drag a block to move it, drag its edge or corner to resize. Everything snaps to the grid. Tap a block for its settings.", ld_cols: "Columns", ld_rows: "Rows", ld_rows_auto: "Auto", ld_gap: "Gap (px)", ld_more: "More grid options", ld_col_sizes: "Column sizes", ld_row_sizes: "Row sizes", ld_sizes_help: "Relative sizes like 1 2 1, or px values – leave empty for equal sizes", ld_row_h: "Row height in a normal card (px)", ld_ah_secs: "Auto-hide after (seconds)", ld_padding: "Padding (px)", ld_hidden: "Hidden", ld_hidden_help: "Drop a block here to hide it", ld_unhide: "Show again", ld_tap_block: "Tap a block to change its visibility, size and options.", ld_vis: "Visibility", ld_show: "Show", ld_hide: "Hide", ld_autohide: "Auto-hide", ld_ah_help: "Hidden until someone taps the screen, then hides again. Auto-hide blocks may sit on top of others.", ld_size: "Size", ld_pos: "Position", ld_agenda_date: "Date in Agenda", l_agenda_date: "Date in Agenda view", o_ad_both: "Left and above", o_ad_left: "Left", o_ad_above: "Above", lb_date: "Date", lb_clock: "Clock", lb_weather: "Weather", lb_countdowns: "Countdowns", lb_views: "View buttons", lb_nav: "Date navigation", lb_add: "+ Event", lb_chips: "Calendar buttons", lb_calendar: "Calendar", lb_todo: "To-do list",
-    edit_task: "Edit task", task_for: "For", replace_note: "This calendar can't change events directly, so saving replaces the event with a new one. Guests, reminders and colours set in the calendar app are not copied.", l_planner_days: "Days in Planner", l_planner_start: "Planner starts on", o_pl_week: "Start of the week", o_pl_today: "Today", l_month_weeks: "Weeks in Month view (empty = whole month)", l_month_start: "Month view starts on", l_week_start: "Week view starts on", o_pc_own: "Own column", o_pc_group: "Group column", o_pc_side: "Next to the date", l_month_mobile: "Month view on phones", o_mm_list: "List of the tapped day", o_mm_text: "Short titles", o_mm_dots: "Dots only", o_mm_both: "Short titles and list of the tapped day", ed_layout: "Layout", l_sections: "Sections above the calendar (drag to reorder, untick to hide)", o_sec_header: "Date & weather", o_sec_countdowns: "Countdowns", o_sec_toolbar: "View buttons & date navigation", o_sec_chips: "Calendar buttons", l_show_view_selector: "Show view buttons (Agenda / Week / …)", l_show_date_navigation: "Show date navigation (‹ Today ›)", l_event_time_position: "Event time", o_tp_above: "Above the title", o_tp_left: "Left of the title", o_tp_right: "Right of the title", l_show_event_location: "Show event location", l_show_event_calendar: "Show calendar name on events", l_planner_column: "Planner view", ed_planner_help: "Own column, a shared column for its group, or next to the date",
+    edit_task: "Edit task", task_for: "For", replace_note: "This calendar can't change events directly, so saving replaces the event with a new one. Guests, reminders and colours set in the calendar app are not copied.", l_planner_days: "Days in Planner", l_planner_start: "Planner starts on", o_pl_week: "Start of the week", o_pl_today: "Today", l_month_weeks: "Weeks in Month view (empty = whole month)", l_month_start: "Month view starts on", l_week_weeks: "Weeks in Week view", l_week_start: "Week view starts on", l_week_step: "Week view navigation step", o_step_all: "All shown weeks", o_step_week: "1 week at a time", l_month_event_style: "Events in Month view", o_mev_cards: "Week-style cards (with time)", o_mev_compact: "Compact inline rows (with time)", l_max_events_per_day: "Max events per day in Month view (0 = all)", o_pc_own: "Own column", o_pc_group: "Group column", o_pc_side: "Next to the date", l_month_mobile: "Month view on phones", o_mm_list: "List of the tapped day", o_mm_text: "Short titles", o_mm_dots: "Dots only", o_mm_both: "Short titles and list of the tapped day", ed_layout: "Layout", l_sections: "Sections above the calendar (drag to reorder, untick to hide)", o_sec_header: "Date & weather", o_sec_countdowns: "Countdowns", o_sec_toolbar: "View buttons & date navigation", o_sec_chips: "Calendar buttons", l_show_view_selector: "Show view buttons (Agenda / Week / …)", l_show_date_navigation: "Show date navigation (‹ Today ›)", l_event_time_position: "Event time", o_tp_above: "Above the title", o_tp_left: "Left of the title", o_tp_right: "Right of the title", l_show_event_location: "Show event location", l_show_event_calendar: "Show calendar name on events", l_planner_column: "Planner view", ed_planner_help: "Own column, a shared column for its group, or next to the date",
     private_ev: "Private", private_sw: "Private", private_help: "Show only \"Private\" and the time on the screen", l_show_clock: "Show clock", l_clock_seconds: "Clock seconds", l_clock_format: "Clock format",
     wk: "Week {n}", wk_short: "Wk", l_show_week_numbers: "Show week numbers",
     agenda: "Agenda", week: "Week", month: "Month", planner: "Planner", pl_add: "Add event for {n}", pl_none: "No person calendars to show – turn some on above", today: "Today", tomorrow: "Tomorrow", yesterday: "Yesterday",
@@ -2921,9 +2921,10 @@ class HomeCalendarCard extends HTMLElement {
       return { start, end: addDays(start, n), days: n };
     }
     if (this._view === "week") {
-      // week_start: today shows 7 days from today / the shown day instead of the calendar week
+      // week_start: today shows N*7 days from today / the shown day instead of the calendar week
+      const n = this._weekWeeks() * 7;
       const start = this._config.week_start === "today" ? startOfDay(a) : this._startOfWeek(a);
-      return { start, end: addDays(start, 7), days: 7 };
+      return { start, end: addDays(start, n), days: n };
     }
     const n = Math.max(1, Number(this._config.days_to_show) || 7);
     return { start: a, end: addDays(a, n), days: n };
@@ -3469,10 +3470,11 @@ class HomeCalendarCard extends HTMLElement {
     if (!this._config.show_week_numbers || !(["week", "planner"].includes(this._view) || rolling)) return txt;
     // the ISO week of the Monday in this range (ranges can start on Sunday/Saturday)
     const mon = [0, 1, 2, 3, 4, 5, 6].map((i) => addDays(start, i)).find((d) => d.getDay() === 1) || start;
+    const multiWeek = this._view === "week" && this._weekWeeks() > 1;
     const span = (this._view === "planner" && (this._config.planner_start === "today" || this._plannerDays() !== 7))
-      || (this._view === "week" && this._config.week_start === "today") || rolling;
-    const a = span ? isoWeek(start) : isoWeek(mon);
-    const b = span ? isoWeek(last) : a;
+      || (this._view === "week" && (this._config.week_start === "today" || multiWeek)) || rolling;
+    const a = span ? (multiWeek && this._config.week_start !== "today" ? isoWeek(addDays(start, 3)) : isoWeek(start)) : isoWeek(mon);
+    const b = span ? (multiWeek && this._config.week_start !== "today" ? isoWeek(addDays(last, -3)) : isoWeek(last)) : a;
     return `${this._t("wk", { n: a === b ? a : `${a}–${b}` })} · ${txt}`;
   }
 
@@ -4285,46 +4287,89 @@ class HomeCalendarCard extends HTMLElement {
     return out || `<div class="empty"><ha-icon icon="mdi:calendar-check-outline"></ha-icon><div>${esc(this._t("no_events"))}</div></div>`;
   }
 
+  _gridEventHtml(ev, d, extraCls = "") {
+    const now = new Date();
+    const live = !ev.allDay && ev.start <= now && ev.end > now;
+    const past = ev.end <= now;
+    const bday = this._isBday(ev);
+    const tpos = ["left", "right"].includes(this._config.event_time_position) ? this._config.event_time_position : "above";
+    const fullTime = bday ? this._yearlyLabel(ev) : this._timeLabel(ev, d);
+    const icon = this._typeIcon(ev);
+    return `<div class="wev tpos-${tpos} ${ev.allDay ? "allday" : ""} ${bday ? "bday" : ""} ${live ? "live" : ""} ${past ? "past" : ""}${extraCls}" style="--c:${esc(ev.cal.color)}" data-action="open-event" data-id="${ev.id}" title="${esc(`${ev.summary} · ${fullTime}`)}">
+      <div class="t">${live ? `<span class="pulse"></span>` : ""}${esc(fullTime)}</div><div class="s">${icon ? `<ha-icon icon="${esc(icon)}"></ha-icon>` : ""}${esc(ev.summary)}</div>
+    </div>`;
+  }
+
+  _compactMonthEventHtml(ev, d) {
+    const now = new Date();
+    const live = !ev.allDay && ev.start <= now && ev.end > now;
+    const past = ev.end <= now;
+    const bday = this._isBday(ev);
+    const tpos = ["left", "right"].includes(this._config.event_time_position) ? this._config.event_time_position : "above";
+    const fullTime = bday ? this._yearlyLabel(ev) : this._timeLabel(ev, d);
+    const timeTxt = bday ? (ev.age ? this._yearlyLabel(ev) : "") : (!ev.allDay ? fullTime : "");
+    const icon = this._typeIcon(ev);
+    return `<div class="mev tpos-${tpos} ${ev.allDay && !bday ? "allday" : ""} ${bday ? "bday" : ""} ${live ? "live" : ""} ${past ? "past" : ""}" style="--c:${esc(ev.cal.color)}" data-action="open-event" data-id="${ev.id}" title="${esc(`${ev.summary} · ${fullTime}`)}">
+      ${icon ? `<ha-icon class="mcake" icon="${esc(icon)}"></ha-icon>` : `<span class="mdot"></span>`}<span class="mbody">${timeTxt ? `<span class="mtime">${live ? `<span class="pulse"></span>` : ""}${esc(timeTxt)}</span>` : ""}<span class="mtxt">${esc(ev.summary)}</span></span>
+    </div>`;
+  }
+
   _renderWeek() {
     const { start } = this._range();
+    const weeks = this._weekWeeks();
     const today = dayKey(new Date());
-    // multi-day bars (#16): a strip under the day headings; phones (stacked days) keep the per-day copies
-    const wb = this._multiBars() ? this._barLanes(this._barSegs(start, 7), 4) : { bars: [], lanes: 0 };
-    const inBar = new Set(wb.bars.map((b) => b.ev.id));
-    let out = `<div class="week ${wb.lanes ? "has-bars" : ""}" style="--wl:${wb.lanes}">`;
-    for (let i = 0; i < 7; i++) {
-      const d = addDays(start, i);
-      const evs = this._eventsOn(d);
-      const copy = (ev) => (inBar.has(ev.id) ? " bar-copy" : "");
-      out += `<div class="wcol ${dayKey(d) === today ? "is-today" : ""}">
-        <button class="whead" data-action="open-day" data-date="${dayKey(d)}">
-          <div class="wd">${esc(this._fmt({ weekday: "short" }).format(d))}</div>
-          <div class="dn">${d.getDate()}</div>
-          ${this._wxBadge(d, true)}
-        </button>
-        ${wb.lanes ? `<div class="wlanes"></div>` : ""}
-        <div class="wevs">${this._holidaysOn(d).map((ev) => `<div class="whol${copy(ev)}" style="--c:${esc(ev.cal.color)}" data-action="open-event" data-id="${ev.id}">${esc(ev.summary)}</div>`).join("")}${evs.map((ev) => `
-          <div class="wev ${ev.allDay ? "allday" : ""} ${this._isBday(ev) ? "bday" : ""} ${ev.end <= new Date() ? "past" : ""}${copy(ev)}" style="--c:${esc(ev.cal.color)}" data-action="open-event" data-id="${ev.id}">
-            <div class="t"><span class="short">${esc(this._isBday(ev) ? this._yearlyLabel(ev, true) : this._shortLabel(ev, d))}</span><span class="full">${esc(this._isBday(ev) ? this._yearlyLabel(ev) : this._timeLabel(ev, d))}</span></div><div class="s">${this._typeIcon(ev) ? `<ha-icon icon="${esc(this._typeIcon(ev))}"></ha-icon>` : ""}${esc(ev.summary)}</div>
-          </div>`).join("")}</div>
-      </div>`;
+    const wn = !!this._config.show_week_numbers;
+    const moFmt = this._fmt({ month: "short" });
+    let anyBars = false;
+    let out = `<div class="week-view ${weeks > 1 ? "multi-week" : ""} ${wn ? "wn" : ""}" style="--wrows:${weeks}">`;
+    for (let w = 0; w < weeks; w++) {
+      const wStart = addDays(start, w * 7);
+      // multi-day bars (#16): a strip under the day headings; phones (stacked days) keep the per-day copies
+      const wb = this._multiBars() ? this._barLanes(this._barSegs(wStart, 7), 4) : { bars: [], lanes: 0 };
+      if (wb.lanes) anyBars = true;
+      const inBar = new Set(wb.bars.map((b) => b.ev.id));
+      const isoWk = wn ? isoWeek(addDays(wStart, 3)) : 0;
+      out += `<div class="wrow">${wn ? `<div class="mwk wwk" title="${esc(this._t("wk", { n: isoWk }))}">${isoWk}</div>` : ""}<div class="week ${wb.lanes ? "has-bars" : ""}" style="--wl:${wb.lanes}">`;
+      for (let i = 0; i < 7; i++) {
+        const d = addDays(wStart, i);
+        const evs = this._eventsOn(d);
+        const copy = (ev) => (inBar.has(ev.id) ? " bar-copy" : "");
+        const showMo = weeks > 1 && (d.getDate() === 1 || (w === 0 && i === 0));
+        out += `<div class="wcol ${dayKey(d) === today ? "is-today" : ""}">
+          <button class="whead" data-action="open-day" data-date="${dayKey(d)}">
+            <div class="wd">${esc(this._fmt({ weekday: "short" }).format(d))}${showMo ? ` · ${esc(moFmt.format(d))}` : ""}</div>
+            <div class="dn">${d.getDate()}</div>
+            ${this._wxBadge(d, true)}
+          </button>
+          ${wb.lanes ? `<div class="wlanes"></div>` : ""}
+          <div class="wevs">${this._holidaysOn(d).map((ev) => `<div class="whol${copy(ev)}" style="--c:${esc(ev.cal.color)}" data-action="open-event" data-id="${ev.id}">${esc(ev.summary)}</div>`).join("")}${evs.map((ev) => this._gridEventHtml(ev, d, copy(ev))).join("")}</div>
+        </div>`;
+      }
+      out += wb.bars.map((b) => this._barHtml(b, "wbar", `--a:${b.a};--n:${b.b - b.a + 1}`)).join("");
+      out += `</div></div>`;
     }
-    out += wb.bars.map((b) => this._barHtml(b, "wbar", `--a:${b.a};--n:${b.b - b.a + 1}`)).join("");
-    if (wb.lanes) requestAnimationFrame(() => this._placeWeekBars());
+    if (anyBars) requestAnimationFrame(() => this._placeWeekBars());
     return out + `</div>`;
   }
 
-  // Week bars sit just under the tallest day heading
+  // Week bars sit just under the tallest day heading in each week row
   _placeWeekBars() {
-    const wk = this._main?.querySelector(".week.has-bars");
-    if (!wk) return;
-    const heads = [...wk.querySelectorAll(".whead")];
-    heads.forEach((h) => { h.style.minHeight = ""; });
-    const zoom = parseFloat(getComputedStyle(heads[0] || wk).zoom) || 1;
-    const tallest = Math.max(...heads.map((h) => h.getBoundingClientRect().height));
-    heads.forEach((h) => { h.style.minHeight = `${tallest / zoom}px`; });
-    const top = Math.max(...heads.map((h) => h.getBoundingClientRect().bottom)) - wk.getBoundingClientRect().top;
-    wk.style.setProperty("--wtop", `${top + 6}px`);
+    const wks = this._main?.querySelectorAll(".week.has-bars");
+    if (!wks?.length) return;
+    wks.forEach((wk) => {
+      const heads = [...wk.querySelectorAll(".whead")];
+      if (!heads.length) return;
+      heads.forEach((h) => { h.style.minHeight = ""; });
+      const zoom = parseFloat(getComputedStyle(heads[0] || wk).zoom) || 1;
+      const tallest = Math.max(...heads.map((h) => h.getBoundingClientRect().height));
+      heads.forEach((h) => { h.style.minHeight = `${tallest / zoom}px`; });
+      const top = Math.max(...heads.map((h) => h.getBoundingClientRect().bottom)) - wk.getBoundingClientRect().top;
+      wk.style.setProperty("--wtop", `${top + 6}px`);
+    });
+  }
+
+  _weekWeeks() {
+    return clampInt(this._config?.week_weeks, 1, 6, 1);
   }
 
   // Planner: days down the side, one column per person (like a printed family planner).
@@ -4406,12 +4451,14 @@ class HomeCalendarCard extends HTMLElement {
     const { start, days } = this._range();
     const month = this._anchor.getMonth();
     const today = dayKey(new Date());
-    const max = Math.max(1, Number(this._config.max_events_per_day) || (this._mode === "card" ? 3 : 6));
+    const rawMax = this._config.max_events_per_day;
+    const max = rawMax === 0 || rawMax === "0" ? Infinity : Math.max(1, Number(rawMax) || (this._mode === "card" ? 3 : 6));
     const wdFmt = this._fmt({ weekday: "short" });
     const wn = !!this._config.show_week_numbers;
     const mm = ["text", "dots", "both"].includes(this._config.month_mobile) ? this._config.month_mobile : "list";
     const list = mm === "list" || mm === "both";
-    let out = `<div class="month ${wn ? "wn" : ""} ${mm === "both" ? "mm-text mm-list" : `mm-${mm}`}"><div class="mhead">${wn ? `<div class="mwk-h">${esc(this._t("wk_short"))}</div>` : ""}`;
+    const mStyle = this._config.month_event_style === "compact" ? "compact" : "cards";
+    let out = `<div class="month mstyle-${mStyle} ${wn ? "wn" : ""} ${mm === "both" ? "mm-text mm-list" : `mm-${mm}`}"><div class="mhead">${wn ? `<div class="mwk-h">${esc(this._t("wk_short"))}</div>` : ""}`;
     for (let i = 0; i < 7; i++) out += `<div>${esc(wdFmt.format(addDays(start, i)))}</div>`;
     out += `</div><div class="mgrid">`;
     const off = wn ? 1 : 0;
@@ -4437,15 +4484,12 @@ class HomeCalendarCard extends HTMLElement {
       const f = this._forecast[dayKey(d)];
       const hol = this._holidaysOn(d)[0];
       const holLabel = this._holidaysOn(d).find((ev) => !inBar.has(ev.id));
-      const more = evs.length - max;
+      const more = Number.isFinite(max) ? evs.length - max : 0;
       out += `<div class="mcell ${!this._monthWeeks() && d.getMonth() !== month ? "other" : ""} ${dayKey(d) === today ? "is-today" : ""} ${list && dayKey(d) === this._mSelKey() ? "msel" : ""} ${hol ? "has-hol" : ""}" style="grid-area:${r} / ${c};${hol ? `--hol:${esc(hol.cal.color)}` : ""}" data-action="open-day" data-date="${dayKey(d)}">
-        <div class="mtop"><span class="mdn">${d.getDate()}</span>${f ? `<span class="mwx"><ha-icon icon="${wxIcon(f.condition)}" style="color:${wxColor(f.condition)}"></ha-icon><b>${round(f.temperature)}°</b></span>` : ""}</div>
+        <div class="mtop"><span class="mdn">${d.getDate()}</span>${f ? `<span class="mwx" title="${esc(this._wx(f.condition))}"><ha-icon icon="${wxIcon(f.condition)}" style="color:${wxColor(f.condition)}"></ha-icon><b>${round(f.temperature)}°</b>${f.templow != null ? `<i>${round(f.templow)}°</i>` : ""}</span>` : ""}</div>
         ${rowBars.lanes ? `<div class="mlanes" style="--lanes:${rowBars.lanes}"></div>` : ""}
         ${holLabel ? `<div class="mhol" style="--c:${esc(holLabel.cal.color)}" title="${esc(holLabel.summary)}">${esc(holLabel.summary)}</div>` : ""}
-        <div class="mevs">${evs.slice(0, max).map((ev) => `
-          <div class="mev ${ev.allDay && !this._isBday(ev) ? "allday" : ""}" style="--c:${esc(ev.cal.color)}" data-action="open-event" data-id="${ev.id}" title="${esc(ev.summary)}">
-            ${this._typeIcon(ev) ? `<ha-icon class="mcake" icon="${esc(this._typeIcon(ev))}"></ha-icon>` : `<span class="mdot"></span>`}<span class="mtxt">${esc(ev.summary)}</span>
-          </div>`).join("")}
+        <div class="mevs">${evs.slice(0, max).map((ev) => (mStyle === "compact" ? this._compactMonthEventHtml(ev, d) : this._gridEventHtml(ev, d))).join("")}
           ${more > 0 ? `<div class="more">+${more}</div>` : ""}</div>
       </div>`;
     }
@@ -4967,9 +5011,10 @@ class HomeCalendarCard extends HTMLElement {
       case "prev":
       case "next": {
         const dir = action === "next" ? 1 : -1;
-        if (this._view === "month" && this._monthWeeks()) this._anchor = addDays(this._config.month_start === "today" ? this._anchor : this._startOfWeek(this._anchor), this._monthWeeks() * 7 * dir);
+        const step1 = this._config.week_step === "week";
+        if (this._view === "month" && this._monthWeeks()) this._anchor = addDays(this._config.month_start === "today" ? this._anchor : this._startOfWeek(this._anchor), (step1 ? 1 : this._monthWeeks()) * 7 * dir);
         else if (this._view === "month") this._anchor = new Date(this._anchor.getFullYear(), this._anchor.getMonth() + dir, 1);
-        else if (this._view === "week") this._anchor = addDays(this._anchor, 7 * dir);
+        else if (this._view === "week") this._anchor = addDays(this._anchor, (step1 ? 1 : this._weekWeeks()) * 7 * dir);
         else if (this._view === "planner") this._anchor = addDays(this._config.planner_start === "today" ? this._anchor : this._startOfWeek(this._anchor), this._plannerDays() * dir);
         else this._anchor = addDays(this._anchor, (Math.max(1, Number(this._config.days_to_show) || 7)) * dir);
         this._fetchEvents();
@@ -5326,8 +5371,13 @@ ha-icon { --mdc-icon-size: 18px; display: inline-flex; flex: none; }
 .empty ha-icon { --mdc-icon-size: 36px; opacity: .6; }
 
 /* week */
+.week-view { display: flex; flex-direction: column; gap: 6px; }
+.wrow { display: flex; gap: 4px; min-width: 0; }
+.wrow > .week { flex: 1; min-width: 0; }
+.wwk { width: 24px; flex: none; padding-top: 12px; }
 .week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
 .wcol { background: var(--hcc-soft); border-radius: 14px; padding: 8px 6px; min-height: 170px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.week-view.multi-week .wcol { min-height: 130px; }
 .wcol.is-today { background: color-mix(in srgb, var(--hcc-accent) 9%, transparent); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--hcc-accent) 45%, transparent); }
 .whead { display: flex; flex-direction: column; align-items: center; gap: 2px; padding-bottom: 6px; border-bottom: 1px solid var(--hcc-line); text-align: center; border-radius: 10px 10px 0 0; }
 .whead .dn { font-size: 1.15rem; font-weight: 700; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; }
@@ -5337,10 +5387,15 @@ ha-icon { --mdc-icon-size: 18px; display: inline-flex; flex: none; }
 .wev { border-left: 3px solid var(--c); background: color-mix(in srgb, var(--c) 15%, var(--hcc-bg)); border-radius: 4px 8px 8px 4px; padding: 4px 6px; cursor: pointer; font-size: .76rem; min-width: 0; }
 .wev:hover { background: color-mix(in srgb, var(--c) 25%, var(--hcc-bg)); }
 .wev.allday { background: var(--c); color: #fff; border-left-color: transparent; }
-.wev .t { color: var(--hcc-muted); font-size: .68rem; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wev.live { box-shadow: inset 0 0 0 1.5px var(--c); }
+.wev.live .t { color: var(--c); }
+.wev .t { color: var(--hcc-muted); font-size: .68rem; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 4px; }
 .wev.allday .t { color: rgba(255,255,255,.85); }
-.wev .t .full { display: none; }
 .wev .s { font-weight: 600; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; word-break: break-word; }
+.wev.tpos-left, .wev.tpos-right { display: flex; align-items: baseline; gap: 5px; }
+.wev.tpos-right { flex-direction: row-reverse; justify-content: space-between; }
+.wev.tpos-left .t, .wev.tpos-right .t { flex: none; max-width: 55%; }
+.wev.tpos-left .s, .wev.tpos-right .s { flex: 1; min-width: 0; }
 
 /* month */
 .mhead, .mgrid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
@@ -5354,10 +5409,24 @@ ha-icon { --mdc-icon-size: 18px; display: inline-flex; flex: none; }
 .mdn { font-size: .8rem; font-weight: 700; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; flex: none; }
 .mwx { display: inline-flex; align-items: center; gap: 1px; font-size: .68rem; min-width: 0; }
 .mwx ha-icon { --mdc-icon-size: 16px; }
-.mevs { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mwx i { font-style: normal; color: var(--hcc-muted); margin-left: 1px; }
+.mevs { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.month.mstyle-compact .mevs { gap: 2px; }
+.mevs .wev { padding: 3px 5px; font-size: .72rem; }
+.mevs .wev .t { font-size: .64rem; }
 .mev { display: flex; align-items: center; gap: 4px; font-size: .7rem; font-weight: 500; white-space: nowrap; overflow: hidden; border-radius: 4px; padding: 1px 4px; min-width: 0; }
 .mev:hover { background: color-mix(in srgb, var(--c) 18%, transparent); }
-.mtxt { overflow: hidden; text-overflow: ellipsis; }
+.mev.past { opacity: .5; }
+.mev.live { box-shadow: inset 0 0 0 1.5px var(--c); }
+.mbody { display: flex; align-items: baseline; gap: 4px; min-width: 0; flex: 1; overflow: hidden; }
+.mev.tpos-above { align-items: flex-start; padding-top: 2px; padding-bottom: 2px; }
+.mev.tpos-above .mdot { margin-top: 5px; }
+.mev.tpos-above .mcake { margin-top: 2px; }
+.mev.tpos-above .mbody { flex-direction: column; gap: 0; }
+.mev.tpos-right .mbody { flex-direction: row-reverse; justify-content: space-between; }
+.mtime { font-size: .64rem; font-weight: 700; color: var(--hcc-muted); font-variant-numeric: tabular-nums; white-space: nowrap; flex: none; display: inline-flex; align-items: center; gap: 3px; }
+.mev.allday .mtime { color: rgba(255,255,255,.88); }
+.mtxt { overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; }
 .mdot { width: 6px; height: 6px; border-radius: 50%; background: var(--c); flex: none; }
 .mev.allday { background: var(--c); color: #fff; }
 .mev.allday .mdot { display: none; }
@@ -5427,29 +5496,30 @@ ha-icon { --mdc-icon-size: 18px; display: inline-flex; flex: none; }
   .month.mm-text .mcell { min-height: calc(76px * var(--ev-scale, 1)); padding: 3px 2px; --mpad: 3px; }
   .month.mm-text .mwx { display: none; }
   .month.mm-text .mevs { flex-direction: column; flex-wrap: nowrap; gap: 1px; padding-left: 0; }
-  .month.mm-text .mev { padding: 0 2px; border-radius: 3px; background: color-mix(in srgb, var(--c) 18%, transparent); }
-  .month.mm-text .mev.allday { background: var(--c); }
+  .month.mm-text .mev, .month.mm-text .mevs .wev { padding: 0 2px; border-radius: 3px; background: color-mix(in srgb, var(--c) 18%, transparent); }
+  .month.mm-text .mev.allday, .month.mm-text .mevs .wev.allday { background: var(--c); }
   .month.mm-text .mev .mdot { display: none; }
   .month.mm-text .mev .mcake { --mdc-icon-size: 9px; flex: none; }
   .month.mm-text .mev { display: flex; align-items: center; gap: 1px; }
   .mlist-head .wx.compact { flex-direction: row; gap: 3px; }
-  .month.mm-text .mtxt { display: block; font-size: .56rem; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: clip; }
+  .month.mm-text .mbody { display: flex; flex-direction: column; gap: 0; }
+  .month.mm-text .mtime, .month.mm-text .mevs .wev .t { font-size: .5rem; line-height: 1.2; }
+  .month.mm-text .mtxt, .month.mm-text .mevs .wev .s { display: block; font-size: .56rem; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: clip; -webkit-line-clamp: 1; }
   .month.mm-text .more { line-height: 1.2; }
 }
 
 /* responsive */
 @container (max-width: 600px) {
   .week { grid-template-columns: 1fr; }
+  .wrow > .wwk { display: none; }
   .week .wbar, .week .wlanes { display: none; }
   .week .bar-copy { display: block; }
-  .wcol { min-height: 0; flex-direction: row; align-items: stretch; padding: 8px; }
+  .wcol, .week-view.multi-week .wcol { min-height: 0; flex-direction: row; align-items: stretch; padding: 8px; }
   .whead { width: 52px; flex: none; border-bottom: none; border-right: 1px solid var(--hcc-line); padding: 0 6px 0 0; border-radius: 0; justify-content: center; }
   .wevs { flex: 1; justify-content: center; }
   .wev .s { -webkit-line-clamp: 1; }
-  .wev .t .short { display: none; }
-  .wev .t .full { display: inline; }
   .wx.compact { flex-direction: column; gap: 0; }
-  .wx.compact i { display: none; }
+  .wx.compact i, .mwx i { display: none; }
 }
 @container (max-width: 480px) {
   .big { font-size: 1.5rem; }
@@ -5466,11 +5536,13 @@ ha-icon { --mdc-icon-size: 18px; display: inline-flex; flex: none; }
   .mhol { display: none; }
   .cd { min-width: 112px; }
   .mcell { min-height: 56px; padding: 3px; --mpad: 3px; }
-  .mwx b { display: none; }
+  .mwx b, .mwx i { display: none; }
   .mevs { flex-direction: row; flex-wrap: wrap; gap: 3px; padding-left: 3px; }
   .mev, .mev.allday { padding: 0; background: none; }
   .mev.allday .mdot { display: block; }
-  .mtxt { display: none; }
+  .mbody, .mtxt { display: none; }
+  .month:not(.mm-text) .mevs .wev { width: 6px; height: 6px; padding: 0; border: none; border-radius: 50%; background: var(--c); flex: none; }
+  .month:not(.mm-text) .mevs .wev > * { display: none; }
   .more { padding: 0; line-height: 6px; font-size: .6rem; }
 }
 
@@ -5637,8 +5709,11 @@ dialog { zoom: var(--hcc-zoom, 1); }
 :host([layout="fill"]) .month, :host([layout="fullscreen"]) .month { height: 100%; display: flex; flex-direction: column; }
 :host([layout="fill"]) .mgrid, :host([layout="fullscreen"]) .mgrid { flex: 1; min-height: 0; grid-auto-rows: minmax(0, 1fr); }
 :host([layout="fill"]) .mcell, :host([layout="fullscreen"]) .mcell { min-height: 0; }
+:host([layout="fill"]) .mevs, :host([layout="fullscreen"]) .mevs { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
 /* week columns fill the height */
 :host([layout="fill"]) .view-week, :host([layout="fullscreen"]) .view-week { overflow: hidden; }
+:host([layout="fill"]) .week-view, :host([layout="fullscreen"]) .week-view { height: 100%; display: grid; grid-template-rows: repeat(var(--wrows, 1), minmax(0, 1fr)); gap: 6px; }
+:host([layout="fill"]) .wrow, :host([layout="fullscreen"]) .wrow { min-height: 0; height: 100%; }
 :host([layout="fill"]) .week, :host([layout="fullscreen"]) .week { height: 100%; }
 :host([layout="fill"]) .wcol, :host([layout="fullscreen"]) .wcol { min-height: 0; overflow: hidden; }
 :host([layout="fill"]) .wevs, :host([layout="fullscreen"]) .wevs { flex: 1; min-height: 0; overflow: auto; }
@@ -5648,7 +5723,7 @@ dialog { zoom: var(--hcc-zoom, 1); }
 :host([layout="fill"]) .view-agenda .aday, :host([layout="fullscreen"]) .view-agenda .aday { border-top: 1px solid var(--hcc-line); padding-top: 12px; }
 @container (max-width: 600px) {
   .view-week { overflow: auto !important; }
-  .week { height: auto !important; }
+  .week-view, .wrow, .week { height: auto !important; display: flex !important; flex-direction: column; }
 }
 /* to-do position: top / bottom / left / right */
 ha-card { container: hcc / inline-size; }
@@ -5793,6 +5868,7 @@ ha-card { container: hcc / inline-size; }
 .mhead { zoom: var(--ev-scale, 1); }
 .mcell { min-height: calc(86px * var(--ev-scale, 1)); }
 .wcol { min-height: calc(170px * var(--ev-scale, 1)); }
+.week-view.multi-week .wcol { min-height: calc(130px * var(--ev-scale, 1)); }
 /* planner: days down the side, a column per person */
 .view-planner { overflow-x: auto; }
 .planner { display: grid; grid-template-columns: 84px repeat(var(--pcols), minmax(130px, 1fr)); gap: 4px; min-width: min-content; }
@@ -5857,15 +5933,15 @@ const NIGHT_DEFAULTS = { enabled: false, style: "clock", start: "22:00", end: "0
 const SAVER_DEFAULTS = { enabled: false, after: 5, interval: 20, shuffle: true, show_info: true };
 const TRAVEL_DEFAULTS = { enabled: false, origin: "zone.home", region: "auto", vehicle_type: "car", hours_ahead: 12, avoid_toll_roads: false, avoid_ferries: false };
 // editor defaults that are not written to YAML until changed
-const LOOK_DEFAULTS = { countdown_style: "cards", countdown_size: 100, event_size: 100, month_mobile: "list", show_clock: false, clock_seconds: true,
+const LOOK_DEFAULTS = { countdown_style: "cards", countdown_size: 100, event_size: 100, month_event_style: "cards", month_mobile: "list", show_clock: false, clock_seconds: true,
   clock_format: "auto", show_view_selector: true, show_date_navigation: true, event_time_position: "above", show_event_location: true,
-  show_event_calendar: true, multiday_bars: true, agenda_multiday: "every", todo_show_empty: true, planner_days: 7, planner_start: "week", month_start: "week", week_start: "week", agenda_date: "both" };
+  show_event_calendar: true, multiday_bars: true, agenda_multiday: "every", todo_show_empty: true, planner_days: 7, planner_start: "week", month_start: "week", week_weeks: 1, week_start: "week", week_step: "all", agenda_date: "both" };
 const GENERAL_KEYS = ["title", "language", "weather_entity", "todo_entity", "todo_title", "todo_position", "todo_autohide",
   "todo_lists", "todo_group_by", "todo_show_empty", "todo_days_ahead", "todo_calendar", "todo_show_completed", "todo_completed_days",
-  "show_countdowns", "countdown_style", "countdown_size", "event_size", "show_calendar_chips", "month_mobile",
+  "show_countdowns", "countdown_style", "countdown_size", "event_size", "show_calendar_chips", "month_event_style", "month_mobile",
   "sections", "show_view_selector", "show_date_navigation", "agenda_date", "agenda_multiday", "event_time_position", "show_event_location", "show_event_calendar",
   "show_clock", "clock_seconds", "clock_format",
-  "default_view", "days_to_show", "show_week_numbers", "multiday_bars", "planner_days", "planner_start", "month_weeks", "month_start", "week_start", "first_day_of_week", "time_format", "layout", "keep_awake", "show_header", "allow_add",
+  "default_view", "days_to_show", "show_week_numbers", "multiday_bars", "planner_days", "planner_start", "month_weeks", "month_start", "week_weeks", "week_start", "week_step", "max_events_per_day", "first_day_of_week", "time_format", "layout", "keep_awake", "show_header", "allow_add",
   "allow_edit", "allow_delete", "show_empty_days", "max_height"];
 const generalSchema = (t, hasGrid = false) => {
   const o = (value, key) => ({ value, label: t(key) });
@@ -5900,7 +5976,10 @@ const generalSchema = (t, hasGrid = false) => {
       { name: "planner_start", selector: { select: { mode: "dropdown", options: [o("week", "o_pl_week"), o("today", "o_pl_today")] } } },
       { name: "month_weeks", selector: { number: { min: 1, max: 6, mode: "box" } } },
       { name: "month_start", selector: { select: { mode: "dropdown", options: [o("week", "o_pl_week"), o("today", "o_pl_today")] } } },
+      { name: "week_weeks", selector: { number: { min: 1, max: 6, mode: "box" } } },
       { name: "week_start", selector: { select: { mode: "dropdown", options: [o("week", "o_pl_week"), o("today", "o_pl_today")] } } },
+      { name: "week_step", selector: { select: { mode: "dropdown", options: [o("all", "o_step_all"), o("week", "o_step_week")] } } },
+      { name: "max_events_per_day", selector: { number: { min: 0, max: 20, mode: "box" } } },
       { name: "first_day_of_week", selector: { select: { mode: "dropdown", options: [o("monday", "o_monday"), o("sunday", "o_sunday"), o("saturday", "o_saturday")] } } },
       { name: "time_format", selector: { select: { mode: "dropdown", options: [o("auto", "o_tf_auto"), o("24h", "o_24h"), o("12h", "o_12h")] } } },
     ] },
@@ -5919,6 +5998,7 @@ const generalSchema = (t, hasGrid = false) => {
       { name: "countdown_style", selector: { select: { mode: "dropdown", options: [o("cards", "o_cards"), o("compact", "o_compact")] } } },
       { name: "countdown_size", selector: { number: { min: 50, max: 150, step: 5, mode: "slider", unit_of_measurement: "%" } } },
       { name: "event_size", selector: { number: { min: 80, max: 160, step: 5, mode: "slider", unit_of_measurement: "%" } } },
+      { name: "month_event_style", selector: { select: { mode: "dropdown", options: [o("cards", "o_mev_cards"), o("compact", "o_mev_compact")] } } },
       { name: "month_mobile", selector: { select: { mode: "dropdown", options: [o("list", "o_mm_list"), o("text", "o_mm_text"), o("both", "o_mm_both"), o("dots", "o_mm_dots")] } } },
       { type: "grid", name: "", schema: [
         { name: "show_clock", selector: { boolean: {} } },
@@ -6348,7 +6428,8 @@ class HccLayoutDesigner extends HTMLElement {
     let extra = "";
     if (n === "calendar") {
       extra = `<label class="f">${esc(t("ld_agenda_date"))} ${sel("agenda_date", [["both", "o_ad_both"], ["left", "o_ad_left"], ["above", "o_ad_above"]], c.agenda_date || "both")}</label>
-        <label class="f">${esc(t("l_event_time_position"))} ${sel("event_time_position", [["above", "o_tp_above"], ["left", "o_tp_left"], ["right", "o_tp_right"]], c.event_time_position || "above")}</label>`;
+        <label class="f">${esc(t("l_event_time_position"))} ${sel("event_time_position", [["above", "o_tp_above"], ["left", "o_tp_left"], ["right", "o_tp_right"]], c.event_time_position || "above")}</label>
+        <label class="f">${esc(t("l_month_event_style"))} ${sel("month_event_style", [["cards", "o_mev_cards"], ["compact", "o_mev_compact"]], c.month_event_style || "cards")}</label>`;
     } else if (n === "clock") {
       extra = `<label class="f">${esc(t("l_clock_format"))} ${sel("clock_format", [["auto", "o_tf_auto"], ["24h", "o_24h"], ["12h", "o_12h"]], c.clock_format || "auto")}</label>
         <label class="f"><input type="checkbox" data-ld-opt="clock_seconds" ${c.clock_seconds !== false ? "checked" : ""}> ${esc(t("l_clock_seconds"))}</label>`;
