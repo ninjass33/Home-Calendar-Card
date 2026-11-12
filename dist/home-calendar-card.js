@@ -7,7 +7,7 @@
  *
  * https://github.com/mimikm/Home-Calendar-Card
  */
-const CARD_VERSION = "1.21.2";
+const CARD_VERSION = "1.21.3";
 
 const DEFAULT_COLORS = ["#4285F4", "#EA4335", "#34A853", "#F9AB00", "#A142F4", "#24C1E0", "#F06292", "#FF7043"];
 
@@ -182,6 +182,12 @@ const I18N = {
     l_target_resolution: "Target screen resolution", o_res_auto: "Auto-fit screen (100% viewport)", o_res_1080p: "1920 × 1080 (Full HD 1080p)", o_res_1440p: "2560 × 1440 (QHD 1440p)", o_res_4k: "3840 × 2160 (4K UHD)", o_res_1200p: "1920 × 1200 (16:10 WUXGA)", o_res_portrait: "1080 × 1920 (Portrait Full HD)", o_res_custom: "Custom resolution (W × H)",
     l_resolution_width: "Custom width (px)", l_resolution_height: "Custom height (px)",
     l_display_mode: "Monitor interaction mode", o_dm_touch: "Touch / Interactive monitor", o_dm_nontouch: "Non-touch monitor (clean passive display)", o_dm_non_touch: "Non-touch monitor (clean passive display)", o_dm_auto: "Auto",
+    l_kiosk_exclude_admin: "Exclude Administrators from Kiosk / Fullscreen lock",
+    l_kiosk_bypass_layout: "Layout for excluded users", o_kb_fill: "Fill page (keep HA top bar & Edit button)", o_kb_card: "Card (normal)",
+    l_kiosk_exclude_users: "Exclude specific people from Kiosk lock",
+    l_kiosk_exclude_names: "Exclude HA usernames / user IDs (comma-separated, optional)",
+    ed_kiosk_help: "Excluded users keep the Home Assistant top bar, sidebar, and interactive controls even when Full screen or Non-touch mode is active.",
+    fs_edit_dash: "Edit dashboard",
     l_sidebar_position: "Sidebar position", l_sidebar_width: "Sidebar width (%)", l_sidebar_gap: "Sidebar gap (px)",
     l_photos_enabled: "Show Google Photos / media slideshow in sidebar", l_photos_title: "Photos card title (optional)", l_photos_media: "Google Photos / Media Source folder", l_photos_entity: "Or Image / Camera entity (optional)", l_photos_images: "Or image URLs (comma-separated, optional)", l_photos_interval: "Seconds per photo", l_photos_fit: "Photo fit", o_fit_cover: "Cover (fill frame)", o_fit_contain: "Contain (full photo with blurred backdrop)", l_photos_shuffle: "Shuffle photos", l_photos_ken_burns: "Slow pan/zoom (Ken Burns effect)",
     ed_photos_help: "e.g. media-source://google_photos or media-source://media_source/local/photos, or pick an image/camera entity.",
@@ -2199,7 +2205,9 @@ class HomeCalendarCard extends HTMLElement {
       _wallCard: true,
       default_view: "month",
       wall_view: "month",
-      layout: "fullscreen",
+      layout: "fill",
+      kiosk_exclude_admin: true,
+      kiosk_bypass_layout: "fill",
       show_clock: true,
       month_event_style: "cards",
       sidebar_position: "right",
@@ -2305,7 +2313,7 @@ class HomeCalendarCard extends HTMLElement {
     const { night } = this._ambientCfg();
     if (night?.wake_entity && hass.states[night.wake_entity]?.state === "on" && old.states[night.wake_entity]?.state !== "on") this._wake();
     if (night?.when_entity && old.states[night.when_entity] !== hass.states[night.when_entity]) this._ambientTick();
-    let rerender = old.locale !== hass.locale;
+    let rerender = old.locale !== hass.locale || old.user?.id !== hass.user?.id || old.user?.is_admin !== hass.user?.is_admin || old.user?.is_owner !== hass.user?.is_owner;
     const w = this._config.weather_entity;
     if (w && old.states[w] !== hass.states[w]) rerender = true;
     const photoEnts = new Set();
@@ -2342,7 +2350,15 @@ class HomeCalendarCard extends HTMLElement {
     this._today = dayKey(new Date());
     this._onResize = () => { cancelAnimationFrame(this._raf); this._raf = requestAnimationFrame(() => { this._applyLayout(true); this._placeWeekBars(); }); };
     this._onVis = () => this._keepAwake();
+    this._onKeyDown = (e) => {
+      if (e.key === "Escape" && this._mode === "fullscreen" && !this._dlg?.open) {
+        this._forceFsPreview = false;
+        try { sessionStorage.setItem("home-calendar-card:fs-off", "1"); } catch (err) { /* ignore */ }
+        this._render();
+      }
+    };
     window.addEventListener("resize", this._onResize);
+    window.addEventListener("keydown", this._onKeyDown);
     if (window.ResizeObserver && !this._ro) { this._ro = new ResizeObserver(() => { if (this._gridOn() || this._targetRes()) this._onResize(); }); this._ro.observe(this); }
     document.addEventListener("visibilitychange", this._onVis);
     this._keepAwake();
@@ -2383,6 +2399,7 @@ class HomeCalendarCard extends HTMLElement {
     clearInterval(this._refresh);
     this._stopWallPhotos();
     window.removeEventListener("resize", this._onResize);
+    window.removeEventListener("keydown", this._onKeyDown);
     if (this._ro) { this._ro.disconnect(); this._ro = null; }
     clearTimeout(this._ahTimer);
     document.removeEventListener("visibilitychange", this._onVis);
@@ -3940,9 +3957,49 @@ class HomeCalendarCard extends HTMLElement {
     return false;
   }
 
+  _isKioskExcluded() {
+    if (this._forceFsPreview) return false;
+    const c = this._config;
+    if (!c) return false;
+    const exclAdmin = c.kiosk_exclude_admin !== undefined ? Boolean(c.kiosk_exclude_admin) : Boolean(this._isWallCard || c._wallCard);
+    const rawUsers = Array.isArray(c.kiosk_exclude_users)
+      ? c.kiosk_exclude_users
+      : String(c.kiosk_exclude_users || "").split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
+    const rawNames = Array.isArray(c.kiosk_exclude_names)
+      ? c.kiosk_exclude_names
+      : String(c.kiosk_exclude_names || "").split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
+    const tokens = [...rawUsers, ...rawNames].map((s) => String(s || "").trim().toLowerCase()).filter(Boolean);
+    const user = this._hass?.user;
+    if (!user) {
+      // Before hass attaches, do not lock into kiosk mode if any exclusion is configured
+      return exclAdmin || tokens.length > 0;
+    }
+    if (exclAdmin && (user.is_admin || user.is_owner)) return true;
+    if (!tokens.length) return false;
+    const uid = String(user.id || "").trim().toLowerCase();
+    const uname = String(user.name || "").trim().toLowerCase();
+    const uslug = uname.replace(/\s+/g, "_");
+    for (const tok of tokens) {
+      if ((uid && tok === uid) || (uname && tok === uname) || (uslug && tok === uslug)) return true;
+      if (tok.startsWith("person.")) {
+        if (uslug && tok.slice(7) === uslug) return true;
+        const states = this._hass?.states || {};
+        const pst = states[tok] || Object.entries(states).find(([k]) => k.toLowerCase() === tok)?.[1];
+        if (pst) {
+          const puid = String(pst.attributes?.user_id || "").trim().toLowerCase();
+          const pname = String(pst.attributes?.friendly_name || "").trim().toLowerCase();
+          if ((uid && puid && puid === uid) || (uname && pname && pname === uname)) return true;
+        }
+      }
+    }
+    return false;
+  }
+
   _displayMode() {
     const dm = String(this._config?.display_mode || "auto").toLowerCase();
-    if (dm === "non_touch" || dm === "nontouch") return "non_touch";
+    if (dm === "non_touch" || dm === "nontouch") {
+      return this._isKioskExcluded() ? "touch" : "non_touch";
+    }
     if (dm === "touch") return "touch";
     return "auto";
   }
@@ -3963,13 +4020,18 @@ class HomeCalendarCard extends HTMLElement {
   }
 
   _computeMode() {
-    const want = String(this._config.layout || (this._isWallCard ? "fullscreen" : "card")).toLowerCase();
-    if (want !== "fill" && want !== "fullscreen") return "card";
+    const want = String(this._config.layout || (this._isWallCard ? "fill" : "card")).toLowerCase();
     if (this._inEditor()) return "card"; // never cover the screen while editing the dashboard
+    if (this._forceFsPreview) return "fullscreen";
+    if (want !== "fill" && want !== "fullscreen") return "card";
     if (want === "fullscreen") {
       let off = false;
       try { off = sessionStorage.getItem("home-calendar-card:fs-off") === "1"; } catch (e) { /* ignore */ }
-      return off ? "fill" : "fullscreen";
+      if (off) return "fill";
+      if (this._isKioskExcluded()) {
+        return String(this._config.kiosk_bypass_layout || "fill").toLowerCase() === "card" ? "card" : "fill";
+      }
+      return "fullscreen";
     }
     return "fill";
   }
@@ -4278,7 +4340,8 @@ class HomeCalendarCard extends HTMLElement {
     const isFs = !!document.fullscreenElement;
     box.innerHTML = `
       ${document.fullscreenEnabled ? `<button class="icon" data-action="browser-fs" title="${esc(this._t(isFs ? "fs_exit" : "fs_browser"))}"><ha-icon icon="${isFs ? "mdi:fullscreen-exit" : "mdi:fullscreen"}"></ha-icon></button>` : ""}
-      <button class="icon" data-action="fs-off" title="${esc(this._t("fs_off"))}"><ha-icon icon="mdi:dock-window"></ha-icon></button>`;
+      <button class="icon" data-action="fs-off" title="${esc(this._t("fs_off"))}"><ha-icon icon="mdi:dock-window"></ha-icon></button>
+      <button class="icon" data-action="edit-dash" title="${esc(this._t("fs_edit_dash"))}"><ha-icon icon="mdi:pencil"></ha-icon></button>`;
   }
 
   async _keepAwake() {
@@ -4428,7 +4491,7 @@ class HomeCalendarCard extends HTMLElement {
         <button class="today" data-action="today">${esc(this._t("today"))}</button>
         <button class="icon" data-action="next" title="${esc(this._t("next"))}"><ha-icon icon="mdi:chevron-right"></ha-icon></button>
         <span class="range">${esc(this._rangeLabel())}</span>
-        ${c.layout === "fullscreen" && this._mode === "fill" && !editing ? `<button class="icon" data-action="fs-on" title="${esc(this._t("back_fs"))}"><ha-icon icon="mdi:fullscreen"></ha-icon></button>` : ""}
+        ${c.layout === "fullscreen" && this._mode !== "fullscreen" && !editing ? `<button class="icon" data-action="fs-on" title="${esc(this._t("back_fs"))}"><ha-icon icon="mdi:fullscreen"></ha-icon></button>` : ""}
       </div>`,
       add: () => (canAdd ? `<button class="add" data-action="add"><ha-icon icon="mdi:plus"></ha-icon><span>${esc(this._t("event_btn"))}</span></button>` : ""),
       chips: () => (this._calendars.length > 1 ? this._renderChips() : ""),
@@ -4578,7 +4641,7 @@ class HomeCalendarCard extends HTMLElement {
     const canAdd = this._config.allow_add !== false && this._writable().length > 0;
     const showViews = this._config.show_view_selector !== false;
     const showNav = this._config.show_date_navigation !== false;
-    const fsBtn = this._config.layout === "fullscreen" && this._mode === "fill" && !this._inEditor();
+    const fsBtn = this._config.layout === "fullscreen" && this._mode !== "fullscreen" && !this._inEditor();
     if (!showViews && !showNav && !canAdd && !fsBtn) return "";
     return `<div class="toolbar ${showNav ? "" : "no-nav"}">
       ${showViews ? `<div class="seg">${views.map(([v, l]) => `<button class="${this._view === v ? "on" : ""}" data-action="view" data-view="${v}">${l}</button>`).join("")}</div>` : ""}
@@ -4588,7 +4651,7 @@ class HomeCalendarCard extends HTMLElement {
         <button class="icon" data-action="next" title="${esc(this._t("next"))}"><ha-icon icon="mdi:chevron-right"></ha-icon></button>
         <span class="range">${esc(this._rangeLabel())}</span>
       </div>` : ""}
-      ${this._config.layout === "fullscreen" && this._mode === "fill" && !this._inEditor() ? `<button class="icon" data-action="fs-on" title="${esc(this._t("back_fs"))}"><ha-icon icon="mdi:fullscreen"></ha-icon></button>` : ""}
+      ${fsBtn ? `<button class="icon" data-action="fs-on" title="${esc(this._t("back_fs"))}"><ha-icon icon="mdi:fullscreen"></ha-icon></button>` : ""}
       ${canAdd ? `<button class="add" data-action="add"><ha-icon icon="mdi:plus"></ha-icon><span>${esc(this._t("event_btn"))}</span></button>` : ""}
     </div>`;
   }
@@ -5407,7 +5470,7 @@ class HomeCalendarCard extends HTMLElement {
     }
     const el = e.composedPath().find((n) => n instanceof HTMLElement && n.dataset && n.dataset.action);
     if (!el) return;
-    if (this._displayMode() === "non_touch" && !["browser-fs", "fs-off", "fs-on"].includes(el.dataset.action)) return;
+    if (this._displayMode() === "non_touch" && !["browser-fs", "fs-off", "fs-on", "edit-dash"].includes(el.dataset.action)) return;
     if (el.dataset.action === "todo-pop") { this._setTodoPop(!this._todoPopOpen); return; }
     const { action } = el.dataset;
     switch (action) {
@@ -5564,11 +5627,25 @@ class HomeCalendarCard extends HTMLElement {
         this._browserFullscreen();
         break;
       case "fs-off":
+        this._forceFsPreview = false;
         try { sessionStorage.setItem("home-calendar-card:fs-off", "1"); } catch (err) { /* ignore */ }
         this._render();
         break;
       case "fs-on":
+        this._forceFsPreview = true;
         try { sessionStorage.removeItem("home-calendar-card:fs-off"); } catch (err) { /* ignore */ }
+        this._render();
+        break;
+      case "edit-dash":
+        this._forceFsPreview = false;
+        try { sessionStorage.setItem("home-calendar-card:fs-off", "1"); } catch (err) { /* ignore */ }
+        if (document.fullscreenElement) { try { document.exitFullscreen().catch(() => {}); } catch (err) { /* ignore */ } }
+        try {
+          const url = new URL(window.location.href);
+          url.searchParams.set("edit", "1");
+          window.history.pushState(null, "", url.toString());
+          window.dispatchEvent(new CustomEvent("location-changed", { bubbles: true, composed: true }));
+        } catch (err) { /* ignore */ }
         this._render();
         break;
       case "more-info":
@@ -6266,7 +6343,7 @@ ha-card { container: hcc / inline-size; }
 :host([data-display="non_touch"]) .toolbar, :host([data-display="non_touch"]) .lb-views,
 :host([data-display="non_touch"]) .lb-nav, :host([data-display="non_touch"]) .lb-add,
 :host([data-display="non_touch"]) .todo-add, :host([data-display="non_touch"]) .wp-nav,
-:host([data-display="non_touch"]) .fs-ctl, :host([data-display="non_touch"]) .padd,
+:host([data-display="non_touch"]) .padd,
 :host([data-display="non_touch"]) .todo-chev { display: none !important; }
 :host([data-display="non_touch"]) .ev, :host([data-display="non_touch"]) .wev,
 :host([data-display="non_touch"]) .mev, :host([data-display="non_touch"]) .mcell,
@@ -6442,6 +6519,7 @@ const LOOK_DEFAULTS = { countdown_style: "cards", countdown_size: 100, event_siz
   clock_format: "auto", show_view_selector: true, show_date_navigation: true, event_time_position: "above", show_event_location: true,
   show_event_calendar: true, multiday_bars: true, agenda_multiday: "every", todo_show_empty: true, planner_days: 7, planner_start: "week", month_start: "week", week_weeks: 1, week_start: "week", week_step: "all", agenda_date: "both",
   wall_view: "month", target_resolution: "auto", resolution_width: 1920, resolution_height: 1080, display_mode: "touch",
+  kiosk_exclude_admin: false, kiosk_bypass_layout: "fill",
   sidebar_position: "right", sidebar_width: 30, sidebar_gap: 16, photos_enabled: false, photos_interval: 20, photos_fit: "cover", photos_shuffle: true, photos_ken_burns: true,
   html_enabled: false, html_icon: "mdi:text-box-outline" };
 const GENERAL_KEYS = ["title", "language", "weather_entity", "todo_entity", "todo_title", "todo_position", "todo_autohide",
@@ -6449,7 +6527,9 @@ const GENERAL_KEYS = ["title", "language", "weather_entity", "todo_entity", "tod
   "show_countdowns", "countdown_style", "countdown_size", "event_size", "show_calendar_chips", "month_event_style", "month_mobile",
   "sections", "show_view_selector", "show_date_navigation", "agenda_date", "agenda_multiday", "event_time_position", "show_event_location", "show_event_calendar",
   "show_clock", "clock_seconds", "clock_format",
-  "wall_view", "target_resolution", "resolution_width", "resolution_height", "display_mode", "sidebar_position", "sidebar_width", "sidebar_gap",
+  "wall_view", "target_resolution", "resolution_width", "resolution_height", "display_mode",
+  "kiosk_exclude_admin", "kiosk_bypass_layout", "kiosk_exclude_users", "kiosk_exclude_names",
+  "sidebar_position", "sidebar_width", "sidebar_gap",
   "photos_enabled", "photos_title", "photos_media", "photos_entity", "photos_interval", "photos_fit", "photos_shuffle", "photos_ken_burns",
   "html_enabled", "html_title", "html_icon", "html_content",
   "default_view", "days_to_show", "show_week_numbers", "multiday_bars", "planner_days", "planner_start", "month_weeks", "month_start", "week_weeks", "week_start", "week_step", "max_events_per_day", "first_day_of_week", "time_format", "layout", "keep_awake", "show_header", "allow_add",
@@ -6470,6 +6550,12 @@ const generalSchema = (t, hasGrid = false, isWall = false) => {
         { name: "resolution_width", selector: { number: { min: 480, max: 7680, step: 10, mode: "box", unit_of_measurement: "px" } } },
         { name: "resolution_height", selector: { number: { min: 480, max: 7680, step: 10, mode: "box", unit_of_measurement: "px" } } },
       ] },
+      { type: "grid", name: "", schema: [
+        { name: "kiosk_exclude_admin", selector: { boolean: {} } },
+        { name: "kiosk_bypass_layout", selector: { select: { mode: "dropdown", options: [o("fill", "o_kb_fill"), o("card", "o_kb_card")] } } },
+      ] },
+      { name: "kiosk_exclude_users", selector: { entity: { domain: "person", multiple: true } } },
+      { name: "kiosk_exclude_names", selector: { text: {} } },
       ...(hasGrid ? [] : [
         { type: "grid", name: "", schema: [
           { name: "sidebar_position", selector: { select: { mode: "dropdown", options: [
@@ -7478,10 +7564,13 @@ class HomeCalendarCardEditor extends HTMLElement {
     this.shadowRoot.querySelector(".slot-layout").appendChild(lay);
 
     const gen = this._makeForm(generalSchema((k) => this._t(k), !!this._config.grid, !!this._isWallCard), {
-      ...LOOK_DEFAULTS, ...(this._isWallCard ? { show_clock: true, layout: "fill" } : {}),
+      ...LOOK_DEFAULTS, ...(this._isWallCard ? { show_clock: true, layout: "fill", kiosk_exclude_admin: true } : {}),
       photos_enabled: this._isWallCard ? this._config.photos_enabled !== false : hasPhotos(this._config),
       html_enabled: this._isWallCard ? this._config.html_enabled !== false : hasCustomHtml(this._config),
       language: "auto", ...this._config, sections: sectionList(this._config),
+      kiosk_exclude_users: Array.isArray(this._config.kiosk_exclude_users)
+        ? this._config.kiosk_exclude_users
+        : (this._config.kiosk_exclude_users ? String(this._config.kiosk_exclude_users).split(/[\n,]+/).map((s) => s.trim()).filter(Boolean) : []),
       todo_lists: todoTabLists(this._config).map((t) => t.entity),
       night_mode: { ...NIGHT_DEFAULTS, ...this._objCfg(this._config.night_mode) },
       travel_time: { ...TRAVEL_DEFAULTS, ...(this._config.travel_time ? { enabled: true } : {}), ...this._objCfg(this._config.travel_time) },
@@ -7490,6 +7579,7 @@ class HomeCalendarCardEditor extends HTMLElement {
       s.name === "media" ? this._t("ed_media_help")
       : s.name === "photos_media" ? this._t("ed_photos_media_help")
       : s.name === "html_content" ? this._t("ed_html_help")
+      : s.name === "kiosk_exclude_users" ? this._t("ed_kiosk_help")
       : s.name === "origin" ? this._t("ed_origin_help")
       : s.name === "todo_lists" ? this._t("ed_todo_lists_help")
       : undefined
@@ -7499,6 +7589,11 @@ class HomeCalendarCardEditor extends HTMLElement {
       gen.data = ev.detail.value;
       const next = { ...this._config, ...ev.detail.value };
       GENERAL_KEYS.forEach((k) => { if (next[k] === "" || next[k] == null) delete next[k]; });
+      if (Array.isArray(next.kiosk_exclude_users)) {
+        const pickedUsers = next.kiosk_exclude_users.filter((e) => typeof e === "string" && e.trim());
+        if (!pickedUsers.length) delete next.kiosk_exclude_users;
+        else next.kiosk_exclude_users = pickedUsers;
+      }
       // extra to-do lists: keep any title/icon set in YAML for lists that are still picked
       if (Array.isArray(next.todo_lists)) {
         const old = todoTabLists(this._config);
@@ -7533,7 +7628,7 @@ class HomeCalendarCardEditor extends HTMLElement {
         next.html_enabled = true;
         if (next.grid?.blocks?.custom_html?.show === "hide") next.grid.blocks.custom_html.show = "show";
       }
-      const lookDefs = this._isWallCard ? { ...LOOK_DEFAULTS, show_clock: true, layout: "fill", photos_enabled: true, html_enabled: true } : LOOK_DEFAULTS;
+      const lookDefs = this._isWallCard ? { ...LOOK_DEFAULTS, show_clock: true, layout: "fill", kiosk_exclude_admin: true, photos_enabled: true, html_enabled: true } : LOOK_DEFAULTS;
       Object.entries(lookDefs).forEach(([k, v]) => { if (next[k] === v && this._config[k] === undefined) delete next[k]; });
       if (next.language !== this._config.language) { this._emit(next, true); return; } // re-draw in the new language
       this._emit(next);

@@ -231,6 +231,33 @@ The **Custom HTML Card** (`html_enabled: true`) lets you render formatted notes,
   ```
 - **Layout Designer (`grid:`)**: If you have enabled the custom grid Layout Designer, block spacing is controlled by the grid's **Gap (`grid.gap`)** and **Padding (`grid.pad`)** settings in the Layout Designer.
 
+### Kiosk / Fullscreen Mode & User / Admin Exclusions
+
+When `layout: fullscreen` (or `display_mode: non_touch`) is enabled for a dedicated wall display, you can exclude Administrators and/or specific Home Assistant users (`person.*` entities, usernames, or user IDs) so you never lose access to the Home Assistant top bar, sidebar, or **Edit Dashboard** button on your personal devices:
+
+```yaml
+layout: fullscreen
+display_mode: non_touch
+
+# Exclude Administrators / Owners from Kiosk lock (default: true on Home Wall Calendar Card)
+kiosk_exclude_admin: true
+
+# Layout shown to excluded users ("fill" keeps HA top bar & Edit button; "card" shows normal card)
+kiosk_bypass_layout: fill
+
+# Exclude specific people (person.* entities) or HA usernames / user IDs
+kiosk_exclude_users:
+  - person.eric
+  - person.emma
+kiosk_exclude_names: "eric, tablet_admin"
+```
+
+- **One-Click Fullscreen Preview for Excluded Users**: When an excluded user views a `layout: fullscreen` dashboard, a **Full screen (`mdi:fullscreen`)** button appears in the toolbar so you can preview the full-screen kiosk view on demand.
+- **Built-in Fullscreen Escape Hatch**: Whenever the card is in `fullscreen` mode (even in `non_touch` mode):
+  - Move the mouse or tap the screen to reveal the top-right pill with **Show Home Assistant** (`mdi:dock-window`) and **Edit Dashboard** (`mdi:pencil`).
+  - Press `Esc` on a keyboard at any time to exit fullscreen mode.
+  - Append `?edit=1` to your dashboard URL (e.g. `http://homeassistant.local:8123/lovelace/wall?edit=1`) to jump straight into the dashboard editor.
+
 ---
 
 ## Configuration (Classic `custom:home-calendar-card`)
@@ -332,7 +359,11 @@ max_height: 640px
 | `travel_time` | `true` \| object | – | Live drive time to upcoming events – see *Travel time to events* |
 | `night_mode` | `true` \| object | – | Night screen for always-on displays – see *Night mode & screensaver* |
 | `screensaver` | `true` \| object | – | Photo slideshow / clock when nobody uses the screen – see *Night mode & screensaver* |
-| `layout` | `card` \| `fill` \| `fullscreen` | `card` | `fill` fills a Panel view below HA's top bar; `fullscreen` covers the whole window – see *Wall display* |
+| `layout` | `card` \| `fill` \| `fullscreen` | `card` (`fill` on Wall Card) | `fill` fills a Panel view below HA's top bar; `fullscreen` covers the whole window – see *Wall display* |
+| `kiosk_exclude_admin` | boolean | `true` on Wall Card | Exclude Home Assistant Administrators (`is_admin` / `is_owner`) from `layout: fullscreen` and `display_mode: non_touch` |
+| `kiosk_bypass_layout` | `fill` \| `card` | `fill` | Layout used for users excluded from `layout: fullscreen` (`fill` keeps HA's top bar and Edit Dashboard button visible) |
+| `kiosk_exclude_users` | list of `person.*` | – | Specific `person.*` entities (or user IDs/names) excluded from Kiosk / Fullscreen lock |
+| `kiosk_exclude_names` | string \| list | – | Comma-separated Home Assistant usernames or user IDs excluded from Kiosk / Fullscreen lock |
 | `scale` | `auto` \| number | `auto` | Text/UI size in `fill`/`fullscreen` (`auto` grows with the screen, e.g. `1.5` = 150%) |
 | `keep_awake` | boolean | `true` in fill/fullscreen | Stop the screen from sleeping while the card is shown |
 | `browser_fullscreen` | boolean | `false` | In `fullscreen`, the first tap also switches the browser to true full screen (hides the address bar) |
