@@ -4,6 +4,9 @@ name: Release
 # Checks the card, makes sure the tag matches CARD_VERSION, then attaches
 # home-calendar-card.js to the release so HACS can download it.
 on:
+  push:
+    tags:
+      - "v*"
   release:
     types: [published]
 
@@ -19,11 +22,16 @@ jobs:
         with:
           node-version: 20
       - name: Check card (tag must match CARD_VERSION)
-        run: node scripts/check-card.mjs --tag "${{ github.event.release.tag_name }}"
-      - name: Attach card file to the release
+        run: node scripts/check-card.mjs --tag "${{ github.event.release.tag_name || github.ref_name }}"
+      - name: Create or update release and attach card file
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          TAG="${{ github.event.release.tag_name || github.ref_name }}"
           FILE=$(node -e "console.log(require('./hacs.json').filename)")
           if [ -f "dist/$FILE" ]; then FILE="dist/$FILE"; fi
-          gh release upload "${{ github.event.release.tag_name }}" "$FILE" --clobber
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" "$FILE" --title "$TAG" --generate-notes
+          else
+            gh release upload "$TAG" "$FILE" --clobber
+          fi
