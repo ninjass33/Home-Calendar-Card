@@ -7,7 +7,7 @@
  *
  * https://github.com/mimikm/Home-Calendar-Card
  */
-const CARD_VERSION = "1.21.0";
+const CARD_VERSION = "1.21.1";
 
 const DEFAULT_COLORS = ["#4285F4", "#EA4335", "#34A853", "#F9AB00", "#A142F4", "#24C1E0", "#F06292", "#FF7043"];
 
@@ -2308,8 +2308,22 @@ class HomeCalendarCard extends HTMLElement {
     let rerender = old.locale !== hass.locale;
     const w = this._config.weather_entity;
     if (w && old.states[w] !== hass.states[w]) rerender = true;
-    const pe = this._config.photos_entity;
-    if (pe && old.states[pe] !== hass.states[pe]) rerender = true;
+    const photoEnts = new Set();
+    if (this._config.photos_entity) photoEnts.add(String(this._config.photos_entity).trim());
+    (this._wpList || []).forEach((x) => { if (x?.entity) photoEnts.add(x.entity); });
+    for (const pe of photoEnts) {
+      if (old.states[pe] !== hass.states[pe]) {
+        const prevSt = old.states[pe];
+        const nextSt = hass.states[pe];
+        const prevSig = `${prevSt?.attributes?.frame_id ?? ""}|${prevSt?.attributes?.entity_picture ?? ""}|${prevSt?.attributes?.access_token ?? ""}|${prevSt?.last_updated ?? ""}`;
+        const nextSig = `${nextSt?.attributes?.frame_id ?? ""}|${nextSt?.attributes?.entity_picture ?? ""}|${nextSt?.attributes?.access_token ?? ""}|${nextSt?.last_updated ?? ""}`;
+        if (!this._wpShownOnce) {
+          this._startWallPhotos();
+        } else if (prevSig !== nextSig) {
+          this._nextWallPhoto(1, 0, true);
+        }
+      }
+    }
     if (hasCustomHtml(this._config) && String(this._config.html_content || "").includes("{{")) this._updateWallHtml();
     if (this._calendars.some((c) => old.states[c.entity] !== hass.states[c.entity])) {
       this._scheduleRefetch();
@@ -3860,7 +3874,11 @@ class HomeCalendarCard extends HTMLElement {
     };
     const src = cfg.media || cfg.folder;
     if (src && this._hass) {
-      try { await walk(src, 0); } catch (e) { console.warn("home-calendar-card: could not read screensaver photos from", src, e); }
+      if (/^(camera|image)\.[a-z0-9_]+$/i.test(String(src).trim())) {
+        list.push({ entity: String(src).trim() });
+      } else {
+        try { await walk(src, 0); } catch (e) { console.warn("home-calendar-card: could not read screensaver photos from", src, e); }
+      }
     }
     if (cfg.shuffle !== false) {
       for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
@@ -3873,6 +3891,7 @@ class HomeCalendarCard extends HTMLElement {
 
   async _photoUrl(p) {
     if (p.url) return p.url;
+    if (p.entity) return this._resolveEntityPhotoUrl(p.entity, true);
     const r = await this._hass.callWS({ type: "media_source/resolve_media", media_content_id: p.id, expires: 3600 });
     return this._hass.hassUrl ? this._hass.hassUrl(r.url) : r.url;
   }
@@ -4024,6 +4043,24 @@ class HomeCalendarCard extends HTMLElement {
     if (this._sidecar) this._sidecar.hidden = !hasSidebar(this._config);
   }
 
+  _resolveEntityPhotoUrl(entityId, bustNow = false) {
+    const id = String(entityId || "").trim();
+    const st = this._hass?.states?.[id];
+    if (!st) return "";
+    let pic = st.attributes?.entity_picture || st.attributes?.url || "";
+    if (!pic && id.startsWith("camera.")) {
+      pic = st.attributes?.access_token
+        ? `/api/camera_proxy/${id}?token=${st.attributes.access_token}`
+        : `/api/camera_proxy/${id}`;
+    }
+    if (!pic) return "";
+    const full = this._hass.hassUrl ? this._hass.hassUrl(pic) : pic;
+    const frame = st.attributes?.frame_id ?? st.last_updated ?? st.last_changed ?? "";
+    const cb = bustNow ? `${frame}_${Date.now()}` : (frame !== "" ? frame : Date.now());
+    const sep = full.includes("?") ? "&" : "?";
+    return `${full}${sep}_cb=${encodeURIComponent(String(cb))}`;
+  }
+
   _updateWallPhotos() {
     const box = this._photosBox;
     if (!box) return;
@@ -4032,6 +4069,8 @@ class HomeCalendarCard extends HTMLElement {
       box.hidden = true;
       this._stopWallPhotos();
       this._wpKey = null;
+      this._wpHadHass = false;
+      this._wpShownOnce = false;
       return;
     }
     box.hidden = false;
@@ -4041,8 +4080,11 @@ class HomeCalendarCard extends HTMLElement {
     box.classList.toggle("kb-on", kb);
     const mediaVal = typeof c.photos_media === "object" && c.photos_media ? (c.photos_media.media_content_id || "") : String(c.photos_media || "");
     const key = JSON.stringify([mediaVal, c.photos_entity || "", c.photos_images || "", c.photos_shuffle !== false, c.photos_interval || 20, c.photos_title || ""]);
+    const gotHass = !this._wpHadHass && !!this._hass;
+    this._wpHadHass = !!this._hass;
     if (this._wpKey !== key) {
       this._wpKey = key;
+      this._wpShownOnce = false;
       box.innerHTML = `
         <div class="wp-layer"><div class="wp-bg"></div><div class="wp-img"></div></div>
         <div class="wp-layer"><div class="wp-bg"></div><div class="wp-img"></div></div>
@@ -4059,7 +4101,7 @@ class HomeCalendarCard extends HTMLElement {
         </div>`;
       this._wpFront = 0;
       this._startWallPhotos();
-    } else if (!this._wpList?.length && this._hass && (mediaVal || c.photos_entity)) {
+    } else if (gotHass || (!this._wpShownOnce && this._hass && (mediaVal || c.photos_entity))) {
       this._startWallPhotos();
     }
   }
@@ -4072,14 +4114,17 @@ class HomeCalendarCard extends HTMLElement {
     const rawImgs = Array.isArray(c.photos_images)
       ? c.photos_images
       : String(c.photos_images || "").split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
-    rawImgs.forEach((u) => list.push({ url: u }));
+    rawImgs.forEach((u) => {
+      if (/^(camera|image)\.[a-z0-9_]+$/i.test(u)) list.push({ entity: u });
+      else list.push({ url: u });
+    });
     if (c.photos_entity) {
-      list.push({ entity: c.photos_entity });
+      list.push({ entity: String(c.photos_entity).trim() });
     }
     const mediaVal = typeof c.photos_media === "object" && c.photos_media
       ? (c.photos_media.media_content_id || "")
       : String(c.photos_media || "").trim();
-    if (mediaVal && this._hass) {
+    if (mediaVal) {
       const sources = mediaVal.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
       const walk = async (id, depth) => {
         const r = await this._hass.callWS({ type: "media_source/browse_media", media_content_id: id });
@@ -4099,8 +4144,9 @@ class HomeCalendarCard extends HTMLElement {
         }
       };
       for (const src of sources) {
-        if (/^https?:\/\/|^\/local\//i.test(src)) list.push({ url: src });
-        else {
+        if (/^(camera|image)\.[a-z0-9_]+$/i.test(src)) list.push({ entity: src });
+        else if (/^https?:\/\/|^\/local\/|^\/api\//i.test(src)) list.push({ url: src });
+        else if (this._hass) {
           try { await walk(src, 0); } catch (e) { console.warn("home-calendar-card: could not browse photos_media", src, e); }
         }
       }
@@ -4114,13 +4160,20 @@ class HomeCalendarCard extends HTMLElement {
     this._wpList = list;
     this._wpIdx = -1;
     if (!list.length) {
-      this._photosBox?.classList.add("is-empty");
+      if (this._hass || (!mediaVal && !c.photos_entity)) this._photosBox?.classList.add("is-empty");
       return;
     }
     this._photosBox?.classList.remove("is-empty");
     this._nextWallPhoto(1);
     const iv = Math.max(5, Number(c.photos_interval) || 20) * 1000;
-    this._wpTimer = setInterval(() => this._nextWallPhoto(1), iv);
+    this._wpTimer = setInterval(() => {
+      // If using a single album_slideshow camera entity that rotates itself via frame_id, only poll when frame_id is not present
+      if (this._wpList?.length === 1 && this._wpList[0].entity) {
+        const st = this._hass?.states?.[this._wpList[0].entity];
+        if (st?.attributes?.frame_id !== undefined && this._wpShownOnce) return;
+      }
+      this._nextWallPhoto(1, 0, true);
+    }, iv);
   }
 
   _stopWallPhotos() {
@@ -4128,7 +4181,7 @@ class HomeCalendarCard extends HTMLElement {
     this._wpTimer = null;
   }
 
-  async _nextWallPhoto(dir = 1, tries = 0) {
+  async _nextWallPhoto(dir = 1, tries = 0, bustNow = false) {
     const box = this._photosBox;
     if (!box || box.hidden || !this._wpList?.length || tries > 3) return;
     const len = this._wpList.length;
@@ -4136,9 +4189,8 @@ class HomeCalendarCard extends HTMLElement {
     const item = this._wpList[this._wpIdx];
     let url = item.url || "";
     if (!url && item.entity) {
-      const st = this._hass?.states?.[item.entity];
-      const pic = st?.attributes?.entity_picture;
-      if (pic) url = this._hass.hassUrl ? this._hass.hassUrl(pic) : pic;
+      if (!this._hass) return; // wait until hass is attached
+      url = this._resolveEntityPhotoUrl(item.entity, bustNow);
     }
     if (!url && item.id && this._hass) {
       try {
@@ -4149,8 +4201,8 @@ class HomeCalendarCard extends HTMLElement {
       }
     }
     if (!url) {
-      if (len > 1) this._nextWallPhoto(dir, tries + 1);
-      else box.classList.add("is-empty");
+      if (len > 1) this._nextWallPhoto(dir, tries + 1, bustNow);
+      else if (this._hass) box.classList.add("is-empty");
       return;
     }
     const showUrl = (finalUrl) => {
@@ -4169,12 +4221,16 @@ class HomeCalendarCard extends HTMLElement {
       next.classList.add("show");
       prev.classList.remove("show");
       this._wpFront = this._wpFront ? 0 : 1;
+      this._wpShownOnce = true;
       this._photosBox.classList.remove("is-empty");
     };
     if (typeof Image !== "undefined") {
       const img = new Image();
       img.onload = () => showUrl(url);
-      img.onerror = () => { if (len > 1) this._nextWallPhoto(dir, tries + 1); };
+      img.onerror = () => {
+        if (len > 1) this._nextWallPhoto(dir, tries + 1, bustNow);
+        else if (item.entity) showUrl(url); // still set background-image for camera streams
+      };
       img.src = url;
     } else {
       showUrl(url);
@@ -5512,11 +5568,23 @@ class HomeCalendarCard extends HTMLElement {
         this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: el.dataset.entity }, bubbles: true, composed: true }));
         break;
       case "wp-prev":
-        this._nextWallPhoto(-1);
+      case "wp-next": {
+        const dir = action === "wp-next" ? 1 : -1;
+        const entItem = this._wpList?.length === 1 && this._wpList[0].entity ? this._wpList[0] : null;
+        if (entItem && this._hass) {
+          const slug = entItem.entity.replace(/^[^.]+\./, "");
+          const candidates = dir < 0
+            ? [`button.${slug}_previous`, `button.${slug}_prev`, `button.${slug}_previous_slide`]
+            : [`button.${slug}_next`, `button.${slug}_next_slide`];
+          const btnEnt = candidates.find((b) => this._hass.states?.[b]);
+          if (btnEnt) {
+            this._hass.callService("button", "press", { entity_id: btnEnt });
+            break;
+          }
+        }
+        this._nextWallPhoto(dir, 0, true);
         break;
-      case "wp-next":
-        this._nextWallPhoto(1);
-        break;
+      }
       default:
     }
   }
@@ -7401,7 +7469,9 @@ class HomeCalendarCardEditor extends HTMLElement {
     this.shadowRoot.querySelector(".slot-layout").appendChild(lay);
 
     const gen = this._makeForm(generalSchema((k) => this._t(k), !!this._config.grid, !!this._isWallCard), {
-      ...LOOK_DEFAULTS, ...(this._isWallCard ? { show_clock: true, layout: "fill", photos_enabled: true, html_enabled: true } : {}),
+      ...LOOK_DEFAULTS, ...(this._isWallCard ? { show_clock: true, layout: "fill" } : {}),
+      photos_enabled: this._isWallCard ? this._config.photos_enabled !== false : hasPhotos(this._config),
+      html_enabled: this._isWallCard ? this._config.html_enabled !== false : hasCustomHtml(this._config),
       language: "auto", ...this._config, sections: sectionList(this._config),
       todo_lists: todoTabLists(this._config).map((t) => t.entity),
       night_mode: { ...NIGHT_DEFAULTS, ...this._objCfg(this._config.night_mode) },
@@ -7444,6 +7514,15 @@ class HomeCalendarCardEditor extends HTMLElement {
       if (Array.isArray(next.sections)) {
         ["show_header", "show_countdowns", "show_calendar_chips"].forEach((k) => delete next[k]);
         if (JSON.stringify(next.sections) === JSON.stringify(SECTIONS)) delete next.sections;
+      }
+      // Auto-enable photos / custom HTML when the user selects a photo entity/media or enters HTML content
+      if ((next.photos_entity && !this._config.photos_entity) || (next.photos_media && !this._config.photos_media)) {
+        next.photos_enabled = true;
+        if (next.grid?.blocks?.photos?.show === "hide") next.grid.blocks.photos.show = "show";
+      }
+      if (next.html_content && !this._config.html_content) {
+        next.html_enabled = true;
+        if (next.grid?.blocks?.custom_html?.show === "hide") next.grid.blocks.custom_html.show = "show";
       }
       const lookDefs = this._isWallCard ? { ...LOOK_DEFAULTS, show_clock: true, layout: "fill", photos_enabled: true, html_enabled: true } : LOOK_DEFAULTS;
       Object.entries(lookDefs).forEach(([k, v]) => { if (next[k] === v && this._config[k] === undefined) delete next[k]; });
