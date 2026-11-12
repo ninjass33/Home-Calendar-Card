@@ -7,7 +7,7 @@
  *
  * https://github.com/mimikm/Home-Calendar-Card
  */
-const CARD_VERSION = "1.21.1";
+const CARD_VERSION = "1.21.2";
 
 const DEFAULT_COLORS = ["#4285F4", "#EA4335", "#34A853", "#F9AB00", "#A142F4", "#24C1E0", "#F06292", "#FF7043"];
 
@@ -181,8 +181,8 @@ const I18N = {
     l_wall_view: "Wall calendar view", o_wv_month: "Month view", o_wv_3weeks: "3-Week view", o_wv_multiweek: "Multi-week view (custom weeks)", o_wv_agenda: "Schedule (Agenda)", o_wv_planner: "Planner",
     l_target_resolution: "Target screen resolution", o_res_auto: "Auto-fit screen (100% viewport)", o_res_1080p: "1920 × 1080 (Full HD 1080p)", o_res_1440p: "2560 × 1440 (QHD 1440p)", o_res_4k: "3840 × 2160 (4K UHD)", o_res_1200p: "1920 × 1200 (16:10 WUXGA)", o_res_portrait: "1080 × 1920 (Portrait Full HD)", o_res_custom: "Custom resolution (W × H)",
     l_resolution_width: "Custom width (px)", l_resolution_height: "Custom height (px)",
-    l_display_mode: "Monitor interaction mode", o_dm_touch: "Touch / Interactive monitor", o_dm_nontouch: "Non-touch monitor (clean passive display)", o_dm_auto: "Auto",
-    l_sidebar_position: "Sidebar position", l_sidebar_width: "Sidebar width (%)",
+    l_display_mode: "Monitor interaction mode", o_dm_touch: "Touch / Interactive monitor", o_dm_nontouch: "Non-touch monitor (clean passive display)", o_dm_non_touch: "Non-touch monitor (clean passive display)", o_dm_auto: "Auto",
+    l_sidebar_position: "Sidebar position", l_sidebar_width: "Sidebar width (%)", l_sidebar_gap: "Sidebar gap (px)",
     l_photos_enabled: "Show Google Photos / media slideshow in sidebar", l_photos_title: "Photos card title (optional)", l_photos_media: "Google Photos / Media Source folder", l_photos_entity: "Or Image / Camera entity (optional)", l_photos_images: "Or image URLs (comma-separated, optional)", l_photos_interval: "Seconds per photo", l_photos_fit: "Photo fit", o_fit_cover: "Cover (fill frame)", o_fit_contain: "Contain (full photo with blurred backdrop)", l_photos_shuffle: "Shuffle photos", l_photos_ken_burns: "Slow pan/zoom (Ken Burns effect)",
     ed_photos_help: "e.g. media-source://google_photos or media-source://media_source/local/photos, or pick an image/camera entity.",
     l_html_enabled: "Show custom HTML / text card in sidebar", l_html_title: "Card title (optional)", l_html_icon: "Card icon (e.g. mdi:note-text-outline)", l_html_content: "Custom HTML / text content",
@@ -2366,10 +2366,13 @@ class HomeCalendarCard extends HTMLElement {
     clearInterval(this._travelTimer);
     this._travelTimer = setInterval(() => this._updateTravel(), 60 * 1000); // re-checks every minute; each place is refreshed after `refresh` minutes
     if (this._hass && this._config) {
+      this._applyLayout();
       this._subscribeWeather();
       this._subscribeTodo();
       this._fetchEvents();
       this._fetchCountdowns();
+    } else if (this._config && this._built) {
+      this._applyLayout();
     }
   }
 
@@ -4004,6 +4007,9 @@ class HomeCalendarCard extends HTMLElement {
     else this.style.removeProperty("--hcc-aspect");
     const sideW = clampInt(this._config.sidebar_width, 18, 55, 30);
     this.style.setProperty("--hcc-side-w", `${sideW}%`);
+    const sideGap = clampInt(this._config.sidebar_gap, 0, 64, 16);
+    this.style.setProperty("--hcc-side-gap", `${sideGap}px`);
+    this._inner.classList.toggle("side-div", !hasPhotos(this._config) && !hasCustomHtml(this._config));
     if (changed) {
       this.setAttribute("layout", mode);
       this.style.setProperty("--hcc-zoom", String(zoom));
@@ -4055,6 +4061,7 @@ class HomeCalendarCard extends HTMLElement {
     }
     if (!pic) return "";
     const full = this._hass.hassUrl ? this._hass.hassUrl(pic) : pic;
+    if (/^(data|blob):/i.test(full)) return full;
     const frame = st.attributes?.frame_id ?? st.last_updated ?? st.last_changed ?? "";
     const cb = bustNow ? `${frame}_${Date.now()}` : (frame !== "" ? frame : Date.now());
     const sep = full.includes("?") ? "&" : "?";
@@ -6047,7 +6054,7 @@ textarea.inp { resize: vertical; }
 .f-err:empty { display: none; }
 
 /* to-do & sidecar modules */
-.sidecar { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--hcc-line); min-width: 0; }
+.sidecar { display: flex; flex-direction: column; gap: var(--hcc-side-gap, 16px); margin-top: var(--hcc-side-gap, 16px); padding-top: 14px; border-top: 1px solid var(--hcc-line); min-width: 0; }
 .sidecar[hidden] { display: none !important; }
 .todo { container-type: inline-size; margin: 0; padding: 0; border: none; }
 .todo[hidden], .wall-photos[hidden], .wall-html[hidden] { display: none !important; }
@@ -6204,11 +6211,12 @@ ha-card { container: hcc / inline-size; }
 .inner.pos-top > .sidecar { order: -1; margin: 0 0 16px; padding: 0 0 14px; border-top: none; border-bottom: 1px solid var(--hcc-line); }
 :host([layout="fill"]) .inner.pos-top > .sidecar, :host([layout="fullscreen"]) .inner.pos-top > .sidecar { margin: 0; }
 @container hcc (min-width: 760px) {
-  .inner.has-todo.pos-left, .inner.has-todo.pos-right { display: flex; flex-direction: row; align-items: stretch; gap: 24px; }
+  .inner.has-todo.pos-left, .inner.has-todo.pos-right { display: flex; flex-direction: row; align-items: stretch; gap: var(--hcc-side-gap, 16px); }
   .inner.has-todo.pos-left > .wrap, .inner.has-todo.pos-right > .wrap { flex: 1; min-width: 0; }
-  .inner.pos-left > .sidecar, .inner.pos-right > .sidecar { width: var(--hcc-side-w, 350px); flex: none; margin: 0; border-top: none; max-height: none; min-height: 0; transition: width .25s; }
-  .inner.pos-right > .sidecar { border-left: 1px solid var(--hcc-line); padding: 0 0 0 24px; }
-  .inner.pos-left > .sidecar { order: -1; border-right: 1px solid var(--hcc-line); padding: 0 24px 0 0; }
+  .inner.pos-left > .sidecar, .inner.pos-right > .sidecar { width: var(--hcc-side-w, 350px); flex: none; margin: 0; padding: 0; border-top: none; max-height: none; min-height: 0; transition: width .25s; }
+  .inner.side-div.pos-right > .sidecar { border-left: 1px solid var(--hcc-line); padding: 0 0 0 var(--hcc-side-gap, 16px); }
+  .inner.pos-left > .sidecar { order: -1; }
+  .inner.side-div.pos-left > .sidecar { border-right: 1px solid var(--hcc-line); padding: 0 var(--hcc-side-gap, 16px) 0 0; }
   .inner.pos-left > .sidecar > .wall-photos, .inner.pos-right > .sidecar > .wall-photos { flex: 1.25 1 180px; min-height: 150px; }
   .inner.pos-left > .sidecar > .wall-html, .inner.pos-right > .sidecar > .wall-html { flex: 0 1 auto; max-height: 45%; min-height: 0; }
   .inner.pos-left > .sidecar > .todo, .inner.pos-right > .sidecar > .todo { flex: 1 1 160px; max-height: none; min-height: 0; display: flex; flex-direction: column; }
@@ -6434,14 +6442,14 @@ const LOOK_DEFAULTS = { countdown_style: "cards", countdown_size: 100, event_siz
   clock_format: "auto", show_view_selector: true, show_date_navigation: true, event_time_position: "above", show_event_location: true,
   show_event_calendar: true, multiday_bars: true, agenda_multiday: "every", todo_show_empty: true, planner_days: 7, planner_start: "week", month_start: "week", week_weeks: 1, week_start: "week", week_step: "all", agenda_date: "both",
   wall_view: "month", target_resolution: "auto", resolution_width: 1920, resolution_height: 1080, display_mode: "touch",
-  sidebar_position: "right", sidebar_width: 30, photos_enabled: false, photos_interval: 20, photos_fit: "cover", photos_shuffle: true, photos_ken_burns: true,
+  sidebar_position: "right", sidebar_width: 30, sidebar_gap: 16, photos_enabled: false, photos_interval: 20, photos_fit: "cover", photos_shuffle: true, photos_ken_burns: true,
   html_enabled: false, html_icon: "mdi:text-box-outline" };
 const GENERAL_KEYS = ["title", "language", "weather_entity", "todo_entity", "todo_title", "todo_position", "todo_autohide",
   "todo_lists", "todo_group_by", "todo_show_empty", "todo_days_ahead", "todo_calendar", "todo_show_completed", "todo_completed_days",
   "show_countdowns", "countdown_style", "countdown_size", "event_size", "show_calendar_chips", "month_event_style", "month_mobile",
   "sections", "show_view_selector", "show_date_navigation", "agenda_date", "agenda_multiday", "event_time_position", "show_event_location", "show_event_calendar",
   "show_clock", "clock_seconds", "clock_format",
-  "wall_view", "target_resolution", "resolution_width", "resolution_height", "display_mode", "sidebar_position", "sidebar_width",
+  "wall_view", "target_resolution", "resolution_width", "resolution_height", "display_mode", "sidebar_position", "sidebar_width", "sidebar_gap",
   "photos_enabled", "photos_title", "photos_media", "photos_entity", "photos_interval", "photos_fit", "photos_shuffle", "photos_ken_burns",
   "html_enabled", "html_title", "html_icon", "html_content",
   "default_view", "days_to_show", "show_week_numbers", "multiday_bars", "planner_days", "planner_start", "month_weeks", "month_start", "week_weeks", "week_start", "week_step", "max_events_per_day", "first_day_of_week", "time_format", "layout", "keep_awake", "show_header", "allow_add",
@@ -6467,6 +6475,7 @@ const generalSchema = (t, hasGrid = false, isWall = false) => {
           { name: "sidebar_position", selector: { select: { mode: "dropdown", options: [
             o("right", "o_right"), o("left", "o_left"), o("top", "o_top"), o("bottom", "o_bottom"), o("auto", "o_auto")] } } },
           { name: "sidebar_width", selector: { number: { min: 18, max: 50, step: 1, mode: "slider", unit_of_measurement: "%" } } },
+          { name: "sidebar_gap", selector: { number: { min: 0, max: 48, step: 2, mode: "slider", unit_of_measurement: "px" } } },
         ] },
       ]),
     ],

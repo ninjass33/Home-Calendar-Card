@@ -1,36 +1,45 @@
-# Home Calendar Card
+# Home Calendar Card & Home Wall Calendar Card
 
-[![Validate](https://github.com/mimikm/Home-Calendar-Card/actions/workflows/validate.yml/badge.svg)](https://github.com/mimikm/Home-Calendar-Card/actions/workflows/validate.yml) [![HACS Default](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://hacs.xyz) [![GitHub release](https://img.shields.io/github/v/release/mimikm/Home-Calendar-Card)](https://github.com/mimikm/Home-Calendar-Card/releases) [![Downloads](https://img.shields.io/github/downloads/mimikm/Home-Calendar-Card/total?label=downloads&color=2ea44f)](https://github.com/mimikm/Home-Calendar-Card/releases) [![Latest release downloads](https://img.shields.io/github/downloads/mimikm/Home-Calendar-Card/latest/total?label=latest%20release)](https://github.com/mimikm/Home-Calendar-Card/releases/latest) [![Stars](https://img.shields.io/github/stars/mimikm/Home-Calendar-Card?style=flat&color=f5c518)](https://github.com/mimikm/Home-Calendar-Card/stargazers)
+[![Validate](https://github.com/ninjass33/Home-Calendar-Card/actions/workflows/validate.yml/badge.svg)](https://github.com/ninjass33/Home-Calendar-Card/actions/workflows/validate.yml) [![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz) [![GitHub release](https://img.shields.io/github/v/release/ninjass33/Home-Calendar-Card)](https://github.com/ninjass33/Home-Calendar-Card/releases) [![Downloads](https://img.shields.io/github/downloads/ninjass33/Home-Calendar-Card/total?label=downloads&color=2ea44f)](https://github.com/ninjass33/Home-Calendar-Card/releases) [![Latest release downloads](https://img.shields.io/github/downloads/ninjass33/Home-Calendar-Card/latest/total?label=latest%20release)](https://github.com/ninjass33/Home-Calendar-Card/releases/latest) [![Stars](https://img.shields.io/github/stars/ninjass33/Home-Calendar-Card?style=flat&color=f5c518)](https://github.com/ninjass33/Home-Calendar-Card/stargazers)
 
-A clean, modern calendar card for Home Assistant. Shows your **Google**, **Apple iCloud** (via CalDAV) or any other Home Assistant calendar in **Agenda**, **Week**, **Month** and **Planner** views, with the **daily weather forecast** on every day — and lets you **add events** straight from the dashboard, choosing which calendar they go into.
+A clean, modern calendar suite for Home Assistant that registers **two cards** out of the box:
 
-![Home Calendar Card](https://github.com/mimikm/Home-Calendar-Card/raw/main/images/preview.png)
+1. **`Home Wall Calendar Card` (`custom:home-wall-calendar-card`)** – purpose-built for wall-mounted displays, smart mirrors, tablets, and non-touch TV monitors. Displays a **Month** or **3-Week** calendar with **full start & end times on every event**, fixed aspect-ratio resolution scaling (zero scrolling), **Touch / Non-Touch** modes, and a customizable **Sidebar (Sidecar)** featuring a **Google Photos / [`album_slideshow`](https://github.com/eyalgal/album_slideshow)** slideshow, a **Custom HTML & Live Sensor Card**, and **To-do lists**.
+2. **`Home Calendar Card` (`custom:home-calendar-card`)** – the classic multi-view family calendar card (**Agenda**, **Week**, **Month**, and **Planner** views) for desktop, tablet, and phone dashboards.
+
+![Home Wall Calendar Card – Month View with Google Photos & Custom HTML Sidebar](images/wall-display-sidecar.png)
 
 ## Screenshots
 
-| Wall display – Month (Midnight) | Wall display – Week (Sunset) |
+| Home Wall Calendar Card – Google Photos & Custom HTML Sidebar | Classic Calendar Card – Agenda & To-do (Nordic) |
 |---|---|
-| ![Month view on a wall display](https://github.com/mimikm/Home-Calendar-Card/raw/main/images/wall-month.png) | ![Week view on a wall display](https://github.com/mimikm/Home-Calendar-Card/raw/main/images/wall-week.png) |
+| ![Home Wall Calendar Card with Google Photos and Custom HTML sidebar](images/wall-display-sidecar.png) | ![Home Calendar Card](images/preview.png) |
+| **Wall display – Month (Midnight)** | **Wall display – Week (Sunset)** |
+| ![Month view on a wall display](images/wall-month.png) | ![Week view on a wall display](images/wall-week.png) |
 | **Wall display – Agenda (Forest)** | **Adding an event** |
-| ![Agenda view on a wall display](https://github.com/mimikm/Home-Calendar-Card/raw/main/images/wall-agenda.png) | ![Add event dialog](https://github.com/mimikm/Home-Calendar-Card/raw/main/images/add-event.png) |
+| ![Agenda view on a wall display](images/wall-agenda.png) | ![Add event dialog](images/add-event.png) |
 
 **Planner view – a column for each person (Midnight)**
 
-![Planner view with a column per person](https://github.com/mimikm/Home-Calendar-Card/raw/main/images/planner.png)
+![Planner view with a column per person](images/planner.png)
 
 **Five colour themes**
 
-![Nordic, Sunset, Forest, Midnight and Graphite themes](https://github.com/mimikm/Home-Calendar-Card/raw/main/images/themes.png)
+![Nordic, Sunset, Forest, Midnight and Graphite themes](images/themes.png)
 
 **On a phone (Graphite)**
 
-<img src="https://github.com/mimikm/Home-Calendar-Card/raw/main/images/mobile.png" alt="Phone view" width="320">
+<img src="images/mobile.png" alt="Phone view" width="320">
 
 <sub>Screenshots use a fictional family – all names, places and events are made up.</sub>
 
 ## Features
 
-- 🧩 **Layout designer** – design the card on your own grid: drag, resize and hide blocks (date, clock, weather, countdowns, buttons, calendar, to-do), auto-hide blocks until tapped, separate phone layout and presets
+- 🖥️ **`Home Wall Calendar Card` (`custom:home-wall-calendar-card`)** – dedicated wall display card with zero-scroll target resolution fitting (`1080p`, `1440p`, `4K`, `16:10`, `Portrait`, or `Custom`), **Touch** and **Non-Touch** kiosk modes, and an integrated multi-module sidebar
+- 🖼️ **Google Photos & Album Slideshow Sidebar** – built-in photo frame card in the sidebar supporting **[`eyalgal/album_slideshow`](https://github.com/eyalgal/album_slideshow)** (`camera.*` and `image.*` entities with live `frame_id` auto-refresh and next/previous service buttons), Home Assistant **Media Sources** (`media-source://...`), and image URLs with Ken Burns pan/zoom
+- 📋 **Custom HTML & Live Sensor Card** – sidebar card with rich HTML/CSS support and live Home Assistant state interpolation (`{{ states('sensor.xxx') }}` and `{{ state_attr('entity', 'attr') }}`) for family notes, Wi-Fi codes, bin schedules, or indoor climate summaries
+- 🕒 **Event Times in Month & 3-Week Views** – `month_event_style: cards` displays tinted event cards with `start – end` times in every Month cell, plus multi-week (`week_weeks: 3`) stacked grids where every week row fits on screen without scrolling
+- 🧩 **Layout designer** – design the card on your own grid: drag, resize and hide blocks (date, clock, weather, countdowns, buttons, calendar, photos, custom HTML, to-do), auto-hide blocks until tapped, separate phone layout and presets
 - ⚙️ **Layout options** – reorder or hide the parts above the calendar, and put event times next to the title for a compact Agenda
 - 📱 **Phone-friendly Month view** – tap a day to list its events under the month, or show short titles in the day boxes
 - 🔢 **Week numbers** – ISO week numbers in Month, Week and Planner views
@@ -76,28 +85,155 @@ A clean, modern calendar card for Home Assistant. Shows your **Google**, **Apple
 
 ## Installation
 
-### HACS (recommended)
+### HACS (Custom Repository)
 
-Home Calendar Card is in the **HACS default store** – no custom repository needed.
+[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ninjass33&repository=Home-Calendar-Card&category=plugin)
 
-[![Open your Home Assistant instance and open this repository in HACS.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=mimikm&repository=Home-Calendar-Card&category=plugin)
+1. Open **HACS** → ⋮ → **Custom repositories**
+2. Add `https://github.com/ninjass33/Home-Calendar-Card` with category **Dashboard** (or click the button above)
+3. Search for **Home Calendar Card** in HACS and click **Download**
+4. Reload your browser (`Ctrl+F5` / `Cmd+Shift+R`)
 
-1. Click the button above, or open **HACS** and search for **Home Calendar Card**
-2. Click **Download**
-3. Reload your browser
-
-HACS will tell you when a new version is out.
-
-> Added it as a custom repository before it was in the store? It keeps working. To tidy up, remove it under HACS → ⋮ → **Custom repositories** – the card stays installed.
+Once installed, **two cards** appear in the dashboard card picker:
+- **Home Wall Calendar Card** (`custom:home-wall-calendar-card`) – for wall displays with Month/3-Week event times, Google Photos / `album_slideshow` sidebar, and Custom HTML card
+- **Home Calendar Card** (`custom:home-calendar-card`) – the classic Agenda / Week / Month / Planner card
 
 ### Manual
 
-1. Download `home-calendar-card.js` from the [latest release](https://github.com/mimikm/Home-Calendar-Card/releases)
+1. Download `home-calendar-card.js` from the [latest release](https://github.com/ninjass33/Home-Calendar-Card/releases)
 2. Copy it to `/config/www/home-calendar-card.js`
 3. Settings → Dashboards → ⋮ → **Resources** → Add `/local/home-calendar-card.js` as a **JavaScript module**
 4. Reload your browser
 
-## Configuration
+---
+
+## Home Wall Calendar Card (`custom:home-wall-calendar-card`)
+
+The **Home Wall Calendar Card** is purpose-built for wall-mounted displays, hallway tablets, kitchen monitors, and non-touch TVs.
+
+![Home Wall Calendar Card with Google Photos and Custom HTML sidebar](images/wall-display-sidecar.png)
+
+### Key Wall Display Capabilities
+
+- **Month View & 3-Week View with Event Times**:
+  - Choose `wall_view: month` (full month grid), `wall_view: 3week` (3-week rolling grid), or `wall_view: week` (multi-week grid, `week_weeks: 1–6`).
+  - Defaults to `month_event_style: cards`, rendering tinted event cards with **start and end times** (`08:00 – 08:45`, `15:45 – 16:15`) inside every Month and Multi-Week cell.
+- **Zero-Scroll Target Resolution**:
+  - Set `target_resolution` to `1920x1080` (1080p), `2560x1440` (1440p), `3840x2160` (4K), `1920x1200` (16:10), `1080x1920` (Portrait), or `custom` (`resolution_width` × `resolution_height`).
+  - Automatically locks the aspect ratio, computes optimal UI scaling, and stretches all calendar rows to fit on screen **without scrolling**.
+- **Touch vs. Non-Touch Monitor Support (`display_mode`)**:
+  - `display_mode: touch` – keeps navigation arrows, view switcher, `+ Event`, and slideshow controls interactive.
+  - `display_mode: non_touch` – hides interactive chrome (`+ Event`, navigation buttons, cursors, hover states) to maximize calendar and sidebar space and automatically rolls the date anchor forward at midnight.
+- **Modular Sidebar (Sidecar)**:
+  - Position the sidebar on the `right` (default), `left`, `bottom`, or `top`, and fine-tune its width (`sidebar_width: 18–55%`, default `30%`) and spacing (`sidebar_gap: 0–48px`, default `16px`).
+  - Stack any combination of:
+    1. **Google Photos / Album Slideshow (`photos_enabled: true`)**
+    2. **Custom HTML & Live Sensor Card (`html_enabled: true`)**
+    3. **To-do Lists (`todo_entity` / `todo_lists`)**
+
+### Full Wall Display YAML Example
+
+```yaml
+type: custom:home-wall-calendar-card
+title: The Parkers
+theme: midnight
+layout: fullscreen
+wall_view: month                # month | 3week | week
+month_event_style: cards        # cards (shows start–end times) | compact
+target_resolution: 1920x1080    # auto | 1920x1080 | 2560x1440 | 3840x2160 | 1920x1200 | 1080x1920 | custom
+display_mode: touch             # touch | non_touch
+show_clock: true
+clock_seconds: true
+weather_entity: weather.forecast_home
+
+# Sidebar layout & spacing
+sidebar_position: right         # right | left | bottom | top
+sidebar_width: 28               # % of screen width (18–55)
+sidebar_gap: 16                 # px gap between calendar and sidebar cards (0–48)
+
+# 1. Google Photos / Album Slideshow sidebar card
+photos_enabled: true
+photos_title: Family Memories
+photos_entity: camera.album_slideshow_family   # eyalgal/album_slideshow camera.* or image.* entity
+photos_interval: 20
+photos_fit: cover               # cover | contain
+photos_ken_burns: true
+
+# 2. Custom HTML & Live Sensor sidebar card
+html_enabled: true
+html_title: Family Notes & Home Status
+html_icon: mdi:clipboard-text-outline
+html_content: |
+  <div style="display:grid; gap:10px;">
+    <div style="display:flex; justify-content:space-between; padding:8px 10px; border-radius:8px; background:rgba(59,130,246,0.12); border-left:3px solid #3b82f6;">
+      <span>🌡️ <b>Indoor Climate</b></span>
+      <span><b>{{ states('sensor.living_room_temperature') }}°C</b></span>
+    </div>
+    <div style="padding:8px 10px; border-radius:8px; background:rgba(245,158,11,0.12); border-left:3px solid #f59e0b;">
+      <b>📌 This Week's Reminders</b>
+      <ul style="margin:4px 0 0; padding-left:18px;">
+        <li>Bin day: Wednesday morning</li>
+        <li>Guest Wi-Fi: <code>Parkers-Guest</code></li>
+      </ul>
+    </div>
+  </div>
+
+# 3. Optional To-do list in sidebar
+todo_entity: todo.family
+
+calendars:
+  - entity: calendar.family
+    name: Family
+    color: "#3b82f6"
+  - entity: calendar.emma
+    person: person.emma
+    color: "#ec4899"
+  - entity: calendar.oliver
+    person: person.oliver
+    color: "#f59e0b"
+```
+
+### Google Photos & [`eyalgal/album_slideshow`](https://github.com/eyalgal/album_slideshow) Setup
+
+The sidebar Photos module supports three ways to bring in your photos (which can also be combined):
+
+1. **[`eyalgal/album_slideshow`](https://github.com/eyalgal/album_slideshow) or Camera / Image Entity (`photos_entity`)**:
+   - Select your `camera.*` or `image.*` entity in the Visual Editor under **Google Photos & Media Slideshow → Camera / Image Entity**, or set in YAML:
+     ```yaml
+     photos_enabled: true
+     photos_entity: camera.google_photos_album
+     ```
+   - The card automatically watches the entity's `frame_id`, `entity_picture`, and `last_updated` attributes with cache-busting so every new slideshow frame transitions smoothly in real time.
+   - In `touch` mode, clicking the `<` / `>` buttons on the photo card automatically calls `button.press` on [`album_slideshow`](https://github.com/eyalgal/album_slideshow)'s companion `button.<name>_previous` and `button.<name>_next` entities when available.
+2. **Home Assistant Media Source (`photos_media`)**:
+   - Browse your **Google Photos** integration album or local `/media/photos` folder directly with the built-in Media Picker in the Visual Editor, or pass a `media-source://...` URI:
+     ```yaml
+     photos_enabled: true
+     photos_media: media-source://google_photos/album/xyz
+     ```
+3. **Direct Image URLs (`photos_images`)**:
+   - Provide a list of local or remote image URLs (`/local/photos/pic1.jpg`, etc.).
+
+### Custom HTML Card & Live Sensor Templates
+
+The **Custom HTML Card** (`html_enabled: true`) lets you render formatted notes, schedules, badges, or tables in the sidebar:
+- Supports standard HTML tags (`<div>`, `<b>`, `<ul>`, `<li>`, `<table>`, `<style>`, inline CSS, etc.) while stripping `<script>` tags for safety.
+- Supports live Home Assistant state interpolation:
+  - `{{ states('sensor.indoor_temperature') }}` → replaced live with the entity's current state.
+  - `{{ state_attr('weather.forecast_home', 'temperature') }}` → replaced live with the entity attribute's value.
+
+### Adjusting Sidebar Padding & Width
+
+- **Classic / Wall Layout**: Use the **Sidebar Gap (`sidebar_gap`)** slider (`0–48 px`, default `16 px`) and **Sidebar Width (`sidebar_width`)** slider (`18–55%`, default `30%`) under **Wall Display & Resolution** in the Visual Editor, or in YAML:
+  ```yaml
+  sidebar_width: 28   # % width of the sidebar
+  sidebar_gap: 12     # px gap between the calendar and sidebar (and between stacked sidebar cards)
+  ```
+- **Layout Designer (`grid:`)**: If you have enabled the custom grid Layout Designer, block spacing is controlled by the grid's **Gap (`grid.gap`)** and **Padding (`grid.pad`)** settings in the Layout Designer.
+
+---
+
+## Configuration (Classic `custom:home-calendar-card`)
 
 Add the card from the dashboard card picker (search for *Home Calendar*) and use the visual editor, or use YAML:
 
@@ -236,9 +372,33 @@ max_height: 640px
 | `allow_edit` | boolean | `true` | Show the **Edit** button on events |
 | `allow_delete` | boolean | `true` | Show the **Delete** button on events (turn off for a shared wall screen) |
 | `max_events_per_day` | number | `3` | Events listed per day in Month view before "+N" |
+| `month_event_style` | `compact` \| `cards` | `compact` (`cards` on Wall Card) | `cards` shows tinted event boxes with start–end times in every Month cell |
 | `week_start` | `week` \| `today` | `week` | Week view starts at the start of the week, or today (7 days from today) |
+| `week_weeks` | number | `1` (`3` in `3week`) | Number of stacked week rows shown in Week view (`1–6`) |
+| `week_step` | `all` \| `week` | `all` | How far ‹ › move in multi-week view: all shown weeks, or 1 week at a time |
 | `month_weeks` | number | – | Month view shows a rolling grid of this many weeks (1–6) instead of the calendar month; ‹ › move by that many weeks |
 | `month_start` | `week` \| `today` | `week` | With `month_weeks`: the grid starts at the start of the week, or today (no past days) |
+| `wall_view` | `month` \| `3week` \| `week` | `month` | Default calendar mode for `custom:home-wall-calendar-card` |
+| `target_resolution` | string | `auto` | Lock aspect ratio & auto-scale for wall displays (`1920x1080`, `2560x1440`, `3840x2160`, `1920x1200`, `1080x1920`, `custom`) |
+| `resolution_width` | number | `1920` | Custom target width in px when `target_resolution: custom` |
+| `resolution_height` | number | `1080` | Custom target height in px when `target_resolution: custom` |
+| `display_mode` | `touch` \| `non_touch` | `touch` | `non_touch` hides interactive chrome, buttons, and cursors for non-touch wall monitors |
+| `sidebar_position` | `right` \| `left` \| `bottom` \| `top` | `right` | Position of the sidebar (Photos, Custom HTML, To-do) |
+| `sidebar_width` | number (%) | `30` | Width of the left/right sidebar (`18–55%`) |
+| `sidebar_gap` | number (px) | `16` | Gap in px between the calendar and sidebar, and between stacked sidebar cards (`0–48`) |
+| `photos_enabled` | boolean | `true` on Wall Card | Show the Google Photos / Album Slideshow module in the sidebar |
+| `photos_title` | string | – | Optional badge title shown at the top-left of the photo card |
+| `photos_entity` | string | – | A `camera.*` or `image.*` entity (e.g. from [`eyalgal/album_slideshow`](https://github.com/eyalgal/album_slideshow)) |
+| `photos_media` | string \| object | – | Home Assistant Media Source URI (`media-source://...`, e.g. Google Photos album or `/media/photos`) |
+| `photos_images` | list \| string | – | List of image URLs (or newline-separated string) for the sidebar slideshow |
+| `photos_interval` | seconds | `20` | Seconds per slide (`5–120`) |
+| `photos_fit` | `cover` \| `contain` | `cover` | `cover` fills the frame; `contain` shows the full photo over a blurred backdrop |
+| `photos_shuffle` | boolean | `true` | Shuffle media-source and image-list photos |
+| `photos_ken_burns` | boolean | `true` | Subtle pan-and-zoom effect on each photo slide |
+| `html_enabled` | boolean | `true` on Wall Card | Show the Custom HTML & Live Sensor card in the sidebar |
+| `html_title` | string | – | Optional heading for the Custom HTML card |
+| `html_icon` | string | `mdi:text-box-outline` | MDI icon or emoji shown next to `html_title` |
+| `html_content` | string (HTML) | – | Rich HTML content supporting `{{ states('entity.id') }}` and `{{ state_attr('entity.id', 'attr') }}` |
 | `max_height` | CSS size | – | Makes the event area scroll, e.g. `600px` |
 | `refresh_interval` | minutes | `5` | How often events are re-fetched |
 
@@ -747,7 +907,7 @@ Made for wall tablets and screens that are always on. Both cover the whole scree
 
 | Night mode (clock) | Screensaver |
 |---|---|
-| ![Night mode](https://github.com/mimikm/Home-Calendar-Card/raw/main/images/night-mode.png) | ![Screensaver](https://github.com/mimikm/Home-Calendar-Card/raw/main/images/screensaver.png) |
+| ![Night mode](images/night-mode.png) | ![Screensaver](images/screensaver.png) |
 
 **🌙 Night mode** – between the times you choose, the screen goes dark:
 
