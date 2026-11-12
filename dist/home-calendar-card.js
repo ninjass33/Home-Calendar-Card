@@ -7,7 +7,7 @@
  *
  * https://github.com/mimikm/Home-Calendar-Card
  */
-const CARD_VERSION = "1.20.0";
+const CARD_VERSION = "1.21.0";
 
 const DEFAULT_COLORS = ["#4285F4", "#EA4335", "#34A853", "#F9AB00", "#A142F4", "#24C1E0", "#F06292", "#FF7043"];
 
@@ -176,6 +176,19 @@ const I18N = {
     l_when_entity: "Or turn on with an entity (optional)", l_wake_entity: "Wake with a motion sensor (optional)", l_wake_seconds: "Stay awake for (seconds)",
     l_after: "Start after (minutes)", l_media: "Photo folder (media source)", l_interval: "Seconds per photo", l_show_info: "Show clock & next event", l_shuffle: "Shuffle photos",
     ed_new_cal: "New calendar – pick one", ed_expand: "Show settings", ed_collapse: "Hide settings", ed_expand_all: "Expand all", ed_collapse_all: "Collapse all", tg_overdue: "Overdue", tg_nodate: "Anytime", tg_upcoming: "Upcoming", done_section: "Done", upcoming_hint: "Coming up – can be ticked off when it's due", undo_done: "Mark as not done", l_todo_group_by: "Group tasks by", o_group_person: "Person", o_group_due: "Due date (Overdue / Today / …)", l_todo_days_ahead: "Show tasks due in the next … days (0 = all)", l_todo_calendar: "Calendar with upcoming repeats (optional)", l_todo_show_completed: "Show completed tasks", l_todo_completed_days: "Completed in the last … days", grp_each: "Show or hide each calendar", l_group: "Group (optional)", ed_group_help: "Calendars with the same group name share one button that shows/hides them all, e.g. Kids", ed_look: "Appearance", l_appearance: "Appearance", l_show_countdowns: "Show countdowns", l_countdown_style: "Countdown style", o_cards: "Cards", o_compact: "Compact (one line)", l_countdown_size: "Countdown size", l_event_size: "Day & event size", l_show_calendar_chips: "Show calendar buttons", o_clock: "Clock only", o_dim: "Dim the calendar", ed_media_help: "e.g. media-source://media_source/local/photos – leave empty for a clock-only screensaver",
+    ed_wall: "Wall Display & Resolution", ed_wall_sub: "Configure view mode, target monitor resolution (zero-scroll), touch mode, and sidebar modules.",
+    ed_sidebar: "Sidebar & Modules", ed_photos: "Google Photos / Media Slideshow", ed_html: "Custom HTML / Text Card",
+    l_wall_view: "Wall calendar view", o_wv_month: "Month view", o_wv_3weeks: "3-Week view", o_wv_multiweek: "Multi-week view (custom weeks)", o_wv_agenda: "Schedule (Agenda)", o_wv_planner: "Planner",
+    l_target_resolution: "Target screen resolution", o_res_auto: "Auto-fit screen (100% viewport)", o_res_1080p: "1920 × 1080 (Full HD 1080p)", o_res_1440p: "2560 × 1440 (QHD 1440p)", o_res_4k: "3840 × 2160 (4K UHD)", o_res_1200p: "1920 × 1200 (16:10 WUXGA)", o_res_portrait: "1080 × 1920 (Portrait Full HD)", o_res_custom: "Custom resolution (W × H)",
+    l_resolution_width: "Custom width (px)", l_resolution_height: "Custom height (px)",
+    l_display_mode: "Monitor interaction mode", o_dm_touch: "Touch / Interactive monitor", o_dm_nontouch: "Non-touch monitor (clean passive display)", o_dm_auto: "Auto",
+    l_sidebar_position: "Sidebar position", l_sidebar_width: "Sidebar width (%)",
+    l_photos_enabled: "Show Google Photos / media slideshow in sidebar", l_photos_title: "Photos card title (optional)", l_photos_media: "Google Photos / Media Source folder", l_photos_entity: "Or Image / Camera entity (optional)", l_photos_images: "Or image URLs (comma-separated, optional)", l_photos_interval: "Seconds per photo", l_photos_fit: "Photo fit", o_fit_cover: "Cover (fill frame)", o_fit_contain: "Contain (full photo with blurred backdrop)", l_photos_shuffle: "Shuffle photos", l_photos_ken_burns: "Slow pan/zoom (Ken Burns effect)",
+    ed_photos_help: "e.g. media-source://google_photos or media-source://media_source/local/photos, or pick an image/camera entity.",
+    l_html_enabled: "Show custom HTML / text card in sidebar", l_html_title: "Card title (optional)", l_html_icon: "Card icon (e.g. mdi:note-text-outline)", l_html_content: "Custom HTML / text content",
+    ed_html_help: "Supports HTML tags (<b>, <ul>, <div>, style=...) and live Home Assistant states like {{ states('sensor.temp') }}.",
+    lb_photos: "Photos", lb_custom_html: "Custom HTML",
+    wp_empty: "Google Photos / Media Slideshow", wp_empty_sub: "Set a Media Source (e.g. media-source://google_photos), Image/Camera entity, or image URLs in the card settings.",
   },
   pl: {
     l_multiday_bars: "Wydarzenia wielodniowe jako jeden pasek",
@@ -1945,11 +1958,11 @@ const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); r
 const parseDate = (s) => { const [y, m, d] = String(s).slice(0, 10).split("-").map(Number); return new Date(y, m - 1, d); };
 const sameDay = (a, b) => dayKey(a) === dayKey(b);
 // ---- Grid layout (v1.17): the card is a grid of blocks the user can move and resize in the editor.
-const GRID_BLOCKS = ["date", "clock", "weather", "countdowns", "views", "nav", "add", "chips", "calendar", "todo"];
+const GRID_BLOCKS = ["date", "clock", "weather", "countdowns", "views", "nav", "add", "chips", "calendar", "photos", "custom_html", "todo"];
 const BLOCK_ICONS = { date: "mdi:calendar-today", clock: "mdi:clock-outline", weather: "mdi:weather-partly-cloudy", countdowns: "mdi:timer-sand",
   views: "mdi:view-week-outline", nav: "mdi:arrow-left-right", add: "mdi:plus-circle-outline", chips: "mdi:toggle-switch-outline",
-  calendar: "mdi:calendar-month-outline", todo: "mdi:checkbox-marked-circle-outline" };
-const BLOCK_MIN = { calendar: [2, 1], todo: [2, 1] };
+  calendar: "mdi:calendar-month-outline", photos: "mdi:image-multiple-outline", custom_html: "mdi:code-tags", todo: "mdi:checkbox-marked-circle-outline" };
+const BLOCK_MIN = { calendar: [2, 1], photos: [2, 1], custom_html: [2, 1], todo: [2, 1] };
 const clampInt = (v, lo, hi, d) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : d; };
 // One layout (desktop or phone): { columns, rows ("auto" | n), col_sizes, row_sizes, blocks: { name: { col, row, w, h, show } } }
 const normLayout = (L) => {
@@ -1996,17 +2009,31 @@ const todoTabLists = (c) => (Array.isArray(c?.todo_lists) ? c.todo_lists : [])
   .map((x) => (typeof x === "string" ? { entity: x } : x && typeof x === "object" ? { ...x } : null))
   .filter((x) => x && typeof x.entity === "string" && x.entity);
 const hasTodo = (c) => todoLists(c).length > 0;
+const hasPhotos = (c) => {
+  if (!c) return false;
+  if (c.photos_enabled === false) return false;
+  if (c.photos_enabled === true) return true;
+  return !!(c.photos_media || c.photos_entity || (Array.isArray(c.photos_images) ? c.photos_images.length : String(c.photos_images || "").trim()));
+};
+const hasCustomHtml = (c) => {
+  if (!c) return false;
+  if (c.html_enabled === false) return false;
+  if (c.html_enabled === true) return true;
+  return !!String(c.html_content || "").trim();
+};
+const hasSidebar = (c) => hasTodo(c) || hasPhotos(c) || hasCustomHtml(c);
 
 const defaultGrid = (c) => {
   const blocks = {};
   const hide = (n) => { blocks[n] = { col: 1, row: 1, w: 1, h: 1, show: "hide" }; };
-  let pos = String(c.todo_position || "auto").toLowerCase();
+  let pos = String(c.sidebar_position || c.todo_position || "auto").toLowerCase();
   if (pos === "side") pos = "right";
-  if (!["top", "bottom", "left", "right"].includes(pos)) pos = !c.layout || c.layout === "card" ? "bottom" : "right";
-  const side = hasTodo(c) && (pos === "left" || pos === "right");
+  if (!["top", "bottom", "left", "right"].includes(pos)) pos = (!c.layout || c.layout === "card") && !c._wallCard ? "bottom" : "right";
+  const sideMods = ["photos", "custom_html", "todo"].filter((m) => (m === "photos" ? hasPhotos(c) : m === "custom_html" ? hasCustomHtml(c) : hasTodo(c)));
+  const side = sideMods.length > 0 && (pos === "left" || pos === "right");
   const M = side ? 8 : 12;
   const O = side && pos === "left" ? 4 : 0;
-  let row = hasTodo(c) && pos === "top" ? 2 : 1;
+  let row = sideMods.length > 0 && pos === "top" ? 2 : 1;
   const put = (items) => { // items: [name, fraction]; fills one row of the main area
     let col = 1;
     items.forEach(([n, f], i) => {
@@ -2031,31 +2058,59 @@ const defaultGrid = (c) => {
     } else put([[x, 1]]);
   });
   put([["calendar", 1]]);
-  if (!hasTodo(c)) hide("todo");
-  else if (side) blocks.todo = { col: pos === "left" ? 1 : 9, row: 1, w: 4, h: row - 1, show: "show" };
-  else blocks.todo = { col: 1, row: pos === "top" ? 1 : row, w: 12, h: 1, show: "show" };
+  ["photos", "custom_html", "todo"].forEach((m) => {
+    if (!sideMods.includes(m)) hide(m);
+  });
+  if (side) {
+    const sCol = pos === "left" ? 1 : 9;
+    sideMods.forEach((m, idx) => {
+      blocks[m] = { col: sCol, row: idx + 1, w: 4, h: 1, show: "show" };
+    });
+  } else if (sideMods.length) {
+    sideMods.forEach((m, idx) => {
+      blocks[m] = { col: 1, row: pos === "top" ? 1 : row + idx, w: 12, h: 1, show: "show" };
+    });
+  }
   return { columns: 12, rows: "auto", blocks };
 };
 const B = (col, row, w, h = 1, show = "show") => ({ col, row, w, h, show });
 const presetGrid = (name, c) => {
-  const todo = hasTodo(c);
+  const sideMods = ["photos", "custom_html", "todo"].filter((m) => (m === "photos" ? hasPhotos(c) : m === "custom_html" ? hasCustomHtml(c) : hasTodo(c)));
+  const hasSide = sideMods.length > 0;
   if (name === "wall") {
-    const W = todo ? 9 : 12;
-    return { columns: 12, rows: 8, blocks: {
+    const W = hasSide ? 9 : 12;
+    const blocks = {
       date: B(1, 1, 4), clock: B(5, 1, 4), weather: B(9, 1, 4), countdowns: B(1, 2, W), calendar: B(1, 3, W, 6),
       views: B(1, 3, 4, 1, "autohide"), nav: B(5, 3, 4, 1, "autohide"), add: B(W, 3, 1, 1, "autohide"), chips: B(1, 8, W, 1, "autohide"),
-      todo: todo ? B(10, 2, 3, 7) : B(1, 1, 1, 1, "hide") } };
+      photos: B(1, 1, 1, 1, "hide"), custom_html: B(1, 1, 1, 1, "hide"), todo: B(1, 1, 1, 1, "hide"),
+    };
+    if (hasSide) {
+      const totalH = 7;
+      const eachH = Math.max(1, Math.floor(totalH / sideMods.length));
+      let curR = 2;
+      sideMods.forEach((m, i) => {
+        const h = i === sideMods.length - 1 ? Math.max(1, 9 - curR) : eachH;
+        blocks[m] = B(10, curR, 3, h);
+        curR += h;
+      });
+    }
+    return { columns: 12, rows: 8, blocks };
   }
   if (name === "tv") {
     return { columns: 12, rows: "auto", blocks: {
-      date: B(1, 1, 6), clock: B(7, 1, 3), weather: B(10, 1, 3), countdowns: B(1, 2, 12), calendar: B(1, 3, todo ? 9 : 12),
-      todo: todo ? B(10, 3, 3) : B(1, 1, 1, 1, "hide"),
+      date: B(1, 1, 6), clock: B(7, 1, 3), weather: B(10, 1, 3), countdowns: B(1, 2, 12), calendar: B(1, 3, hasSide ? 9 : 12),
+      photos: hasPhotos(c) ? B(10, 3, 3) : B(1, 1, 1, 1, "hide"),
+      custom_html: hasCustomHtml(c) ? B(10, 4, 3) : B(1, 1, 1, 1, "hide"),
+      todo: hasTodo(c) ? B(10, 5, 3) : B(1, 1, 1, 1, "hide"),
       views: B(1, 1, 1, 1, "hide"), nav: B(1, 1, 1, 1, "hide"), add: B(1, 1, 1, 1, "hide"), chips: B(1, 1, 1, 1, "hide") } };
   }
   if (name === "phone") {
     return { columns: 4, rows: "auto", blocks: {
       date: B(1, 1, 2), weather: B(3, 1, 2), clock: B(1, 1, 1, 1, "hide"), countdowns: B(1, 2, 4), views: B(1, 3, 4), nav: B(1, 4, 3), add: B(4, 4, 1),
-      chips: B(1, 5, 4), calendar: B(1, 6, 4), todo: todo ? B(1, 7, 4) : B(1, 1, 1, 1, "hide") } };
+      chips: B(1, 5, 4), calendar: B(1, 6, 4),
+      photos: hasPhotos(c) ? B(1, 7, 4) : B(1, 1, 1, 1, "hide"),
+      custom_html: hasCustomHtml(c) ? B(1, 8, 4) : B(1, 1, 1, 1, "hide"),
+      todo: hasTodo(c) ? B(1, 9, 4) : B(1, 1, 1, 1, "hide") } };
   }
   return defaultGrid(c);
 };
@@ -2138,12 +2193,42 @@ class HomeCalendarCard extends HTMLElement {
     }
     const oldWeather = this._config?.weather_entity;
     const oldTodo = JSON.stringify(todoLists(this._config));
+    const oldDefView = this._config?.default_view;
+    const oldWallView = this._config?.wall_view;
+    const wallDefaults = this._isWallCard ? {
+      _wallCard: true,
+      default_view: "month",
+      wall_view: "month",
+      layout: "fullscreen",
+      show_clock: true,
+      month_event_style: "cards",
+      sidebar_position: "right",
+      sidebar_width: 30,
+      photos_enabled: true,
+      photos_interval: 20,
+      photos_fit: "cover",
+      photos_shuffle: true,
+      photos_ken_burns: true,
+      html_enabled: true,
+      display_mode: "touch",
+      target_resolution: "auto",
+    } : {};
     this._config = {
       default_view: "agenda", days_to_show: 7, first_day_of_week: "monday", time_format: "auto",
       show_empty_days: false, show_header: true, show_calendar_chips: true, allow_add: true,
       refresh_interval: 5,
+      ...wallDefaults,
       ...config,
     };
+    if (this._config.wall_view === "3weeks") {
+      this._config.default_view = "week";
+      this._config.week_weeks = 3;
+    } else if (this._config.wall_view === "multiweek") {
+      this._config.default_view = "week";
+      if (!this._config.week_weeks || Number(this._config.week_weeks) < 2) this._config.week_weeks = 2;
+    } else if (["month", "agenda", "planner"].includes(this._config.wall_view)) {
+      this._config.default_view = this._config.wall_view;
+    }
     this._calendars = config.calendars
       .map(fixCalEntry)
       .map((c, i) => {
@@ -2181,7 +2266,7 @@ class HomeCalendarCard extends HTMLElement {
       const saved = JSON.parse(localStorage.getItem(this._storeKey) || "{}");
       this._hidden = new Set(saved.hidden || []);
     } catch (e) { this._hidden = new Set(); }
-    if (!["agenda", "week", "month", "planner"].includes(this._view) || !this._configured) {
+    if (!["agenda", "week", "month", "planner"].includes(this._view) || !this._configured || oldDefView !== this._config.default_view || oldWallView !== this._config.wall_view) {
       this._view = ["agenda", "week", "month", "planner"].includes(this._config.default_view) ? this._config.default_view : "agenda";
     }
     this._configured = true;
@@ -2223,6 +2308,9 @@ class HomeCalendarCard extends HTMLElement {
     let rerender = old.locale !== hass.locale;
     const w = this._config.weather_entity;
     if (w && old.states[w] !== hass.states[w]) rerender = true;
+    const pe = this._config.photos_entity;
+    if (pe && old.states[pe] !== hass.states[pe]) rerender = true;
+    if (hasCustomHtml(this._config) && String(this._config.html_content || "").includes("{{")) this._updateWallHtml();
     if (this._calendars.some((c) => old.states[c.entity] !== hass.states[c.entity])) {
       this._scheduleRefetch();
       rerender = true;
@@ -2241,7 +2329,7 @@ class HomeCalendarCard extends HTMLElement {
     this._onResize = () => { cancelAnimationFrame(this._raf); this._raf = requestAnimationFrame(() => { this._applyLayout(true); this._placeWeekBars(); }); };
     this._onVis = () => this._keepAwake();
     window.addEventListener("resize", this._onResize);
-    if (window.ResizeObserver && !this._ro) { this._ro = new ResizeObserver(() => { if (this._gridOn()) this._onResize(); }); this._ro.observe(this); }
+    if (window.ResizeObserver && !this._ro) { this._ro = new ResizeObserver(() => { if (this._gridOn() || this._targetRes()) this._onResize(); }); this._ro.observe(this); }
     document.addEventListener("visibilitychange", this._onVis);
     this._keepAwake();
     this._ambientStart();
@@ -2249,8 +2337,8 @@ class HomeCalendarCard extends HTMLElement {
     this._tick = setInterval(() => {
       const k = dayKey(new Date());
       if (k !== this._today) {
-        // Day rolled over: keep the view following "today" if it was on today.
-        if (dayKey(this._anchor) === this._today) this._anchor = startOfDay(new Date());
+        // Day rolled over: keep the view following "today" if it was on today or in non-touch wall mode.
+        if (dayKey(this._anchor) === this._today || this._displayMode() === "non_touch") this._anchor = startOfDay(new Date());
         this._today = k;
         this._fetchEvents();
         this._fetchCountdowns();
@@ -2276,6 +2364,7 @@ class HomeCalendarCard extends HTMLElement {
     clearInterval(this._clockTimer);
     clearInterval(this._travelTimer);
     clearInterval(this._refresh);
+    this._stopWallPhotos();
     window.removeEventListener("resize", this._onResize);
     if (this._ro) { this._ro.disconnect(); this._ro = null; }
     clearTimeout(this._ahTimer);
@@ -3481,8 +3570,11 @@ class HomeCalendarCard extends HTMLElement {
   /* ------------------------------------------------------------- rendering */
 
   _build() {
-    this.shadowRoot.innerHTML = `<style>${STYLES}</style><ha-card><div class="inner"><div class="wrap"></div><div class="todo" hidden></div></div><div class="amb night"></div><div class="amb saver"></div><div class="fs-ctl"></div><div class="hcc-toast"></div></ha-card><dialog></dialog>`;
+    this.shadowRoot.innerHTML = `<style>${STYLES}</style><ha-card><div class="inner"><div class="wrap"></div><div class="sidecar" hidden><div class="wall-photos" hidden></div><div class="wall-html" hidden></div><div class="todo" hidden></div></div></div><div class="amb night"></div><div class="amb saver"></div><div class="fs-ctl"></div><div class="hcc-toast"></div></ha-card><dialog></dialog>`;
     this._main = this.shadowRoot.querySelector(".wrap");
+    this._sidecar = this.shadowRoot.querySelector(".sidecar");
+    this._photosBox = this.shadowRoot.querySelector(".wall-photos");
+    this._htmlBox = this.shadowRoot.querySelector(".wall-html");
     const card = this.shadowRoot.querySelector("ha-card");
     card.addEventListener("pointerdown", (e) => this._ahPointer(e), true);
     card.addEventListener("click", (e) => { if (this._ahSwallow) { this._ahSwallow = false; e.stopPropagation(); e.preventDefault(); } }, true);
@@ -3826,8 +3918,30 @@ class HomeCalendarCard extends HTMLElement {
     return false;
   }
 
+  _displayMode() {
+    const dm = String(this._config?.display_mode || "auto").toLowerCase();
+    if (dm === "non_touch" || dm === "nontouch") return "non_touch";
+    if (dm === "touch") return "touch";
+    return "auto";
+  }
+
+  _targetRes() {
+    const r = String(this._config?.target_resolution || "auto").toLowerCase();
+    if (r === "1920x1080") return [1920, 1080];
+    if (r === "2560x1440") return [2560, 1440];
+    if (r === "3840x2160") return [3840, 2160];
+    if (r === "1920x1200") return [1920, 1200];
+    if (r === "1080x1920") return [1080, 1920];
+    if (r === "custom") {
+      const w = clampInt(this._config?.resolution_width, 480, 7680, 1920);
+      const h = clampInt(this._config?.resolution_height, 480, 7680, 1080);
+      return [w, h];
+    }
+    return null;
+  }
+
   _computeMode() {
-    const want = String(this._config.layout || "card").toLowerCase();
+    const want = String(this._config.layout || (this._isWallCard ? "fullscreen" : "card")).toLowerCase();
     if (want !== "fill" && want !== "fullscreen") return "card";
     if (this._inEditor()) return "card"; // never cover the screen while editing the dashboard
     if (want === "fullscreen") {
@@ -3841,6 +3955,16 @@ class HomeCalendarCard extends HTMLElement {
   _zoom(mode) {
     const s = this._config.scale;
     if (s != null && s !== "auto" && s !== "") return Math.max(0.5, Math.min(3, Number(s) || 1));
+    const res = this._targetRes();
+    if (res) {
+      const [tw, th] = res;
+      const vw = (mode === "card" ? (this.clientWidth || window.innerWidth) : window.innerWidth) || tw;
+      const vh = (mode === "card" ? (this.clientHeight || window.innerHeight) : window.innerHeight) || th;
+      const baseW = tw >= th ? 1600 : 960;
+      const baseH = tw >= th ? 900 : 1500;
+      const z = Math.min(vw / baseW, vh / baseH);
+      return Math.round(Math.max(0.55, Math.min(2.8, z)) * 100) / 100;
+    }
     if (mode === "card") return 1;
     const z = Math.min(window.innerWidth / 1440, window.innerHeight / 860);
     return Math.round(Math.max(1, Math.min(2.5, z)) * 100) / 100;
@@ -3853,6 +3977,14 @@ class HomeCalendarCard extends HTMLElement {
     const changed = mode !== this._mode || zoom !== this._zoomVal;
     this._mode = mode;
     this._zoomVal = zoom;
+    const isWall = !!(this._isWallCard || this._config._wallCard || this._targetRes());
+    this.toggleAttribute("wall-card", isWall);
+    this.setAttribute("data-display", this._displayMode());
+    const res = this._targetRes();
+    if (res) this.style.setProperty("--hcc-aspect", `${res[0]} / ${res[1]}`);
+    else this.style.removeProperty("--hcc-aspect");
+    const sideW = clampInt(this._config.sidebar_width, 18, 55, 30);
+    this.style.setProperty("--hcc-side-w", `${sideW}%`);
     if (changed) {
       this.setAttribute("layout", mode);
       this.style.setProperty("--hcc-zoom", String(zoom));
@@ -3869,17 +4001,211 @@ class HomeCalendarCard extends HTMLElement {
     };
     this.style.setProperty("--cd-scale", String(pct(this._config.countdown_size, 0.5, 1.5)));
     this.style.setProperty("--ev-scale", String(pct(this._config.event_size, 0.8, 1.6)));
-    this._inner.classList.toggle("has-todo", hasTodo(this._config));
+    const anySide = hasSidebar(this._config);
+    this._inner.classList.toggle("has-todo", anySide);
+    if (this._sidecar) this._sidecar.hidden = !anySide;
     if (this._gridOn()) {
       const bp = clampInt(this._config.grid.phone_breakpoint, 200, 2000, 600);
       const w = this.clientWidth || 9999;
       if (fromResize && (w < bp) !== !!this._isPhone) this._render();
       return;
     }
-    let pos = String(this._config.todo_position || "auto").toLowerCase();
+    let pos = String(this._config.sidebar_position || this._config.todo_position || "auto").toLowerCase();
     if (pos === "side") pos = "right";
-    if (!["top", "bottom", "left", "right"].includes(pos)) pos = mode === "card" ? "bottom" : "right";
+    if (!["top", "bottom", "left", "right"].includes(pos)) pos = (mode === "card" && !isWall) ? "bottom" : "right";
     ["top", "bottom", "left", "right"].forEach((p) => this._inner.classList.toggle(`pos-${p}`, p === pos));
+  }
+
+  /* --------------------------------------------------- wall sidebar modules */
+
+  _updateWallModules() {
+    this._updateWallPhotos();
+    this._updateWallHtml();
+    if (this._sidecar) this._sidecar.hidden = !hasSidebar(this._config);
+  }
+
+  _updateWallPhotos() {
+    const box = this._photosBox;
+    if (!box) return;
+    const c = this._config;
+    if (!hasPhotos(c)) {
+      box.hidden = true;
+      this._stopWallPhotos();
+      this._wpKey = null;
+      return;
+    }
+    box.hidden = false;
+    const fit = c.photos_fit === "contain" ? "contain" : "cover";
+    const kb = c.photos_ken_burns !== false;
+    box.classList.toggle("fit-contain", fit === "contain");
+    box.classList.toggle("kb-on", kb);
+    const mediaVal = typeof c.photos_media === "object" && c.photos_media ? (c.photos_media.media_content_id || "") : String(c.photos_media || "");
+    const key = JSON.stringify([mediaVal, c.photos_entity || "", c.photos_images || "", c.photos_shuffle !== false, c.photos_interval || 20, c.photos_title || ""]);
+    if (this._wpKey !== key) {
+      this._wpKey = key;
+      box.innerHTML = `
+        <div class="wp-layer"><div class="wp-bg"></div><div class="wp-img"></div></div>
+        <div class="wp-layer"><div class="wp-bg"></div><div class="wp-img"></div></div>
+        <div class="wp-shade"></div>
+        ${c.photos_title ? `<div class="wp-title"><ha-icon icon="mdi:image-multiple-outline"></ha-icon><span>${esc(c.photos_title)}</span></div>` : ""}
+        <div class="wp-nav">
+          <button class="wp-btn" data-action="wp-prev" title="${esc(this._t("prev"))}"><ha-icon icon="mdi:chevron-left"></ha-icon></button>
+          <button class="wp-btn" data-action="wp-next" title="${esc(this._t("next"))}"><ha-icon icon="mdi:chevron-right"></ha-icon></button>
+        </div>
+        <div class="wp-empty">
+          <ha-icon icon="mdi:image-multiple-outline"></ha-icon>
+          <div class="wp-empty-t">${esc(this._t("wp_empty"))}</div>
+          <div class="wp-empty-s">${esc(this._t("wp_empty_sub"))}</div>
+        </div>`;
+      this._wpFront = 0;
+      this._startWallPhotos();
+    } else if (!this._wpList?.length && this._hass && (mediaVal || c.photos_entity)) {
+      this._startWallPhotos();
+    }
+  }
+
+  async _startWallPhotos() {
+    this._stopWallPhotos();
+    const c = this._config;
+    if (!c || !hasPhotos(c)) return;
+    const list = [];
+    const rawImgs = Array.isArray(c.photos_images)
+      ? c.photos_images
+      : String(c.photos_images || "").split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
+    rawImgs.forEach((u) => list.push({ url: u }));
+    if (c.photos_entity) {
+      list.push({ entity: c.photos_entity });
+    }
+    const mediaVal = typeof c.photos_media === "object" && c.photos_media
+      ? (c.photos_media.media_content_id || "")
+      : String(c.photos_media || "").trim();
+    if (mediaVal && this._hass) {
+      const sources = mediaVal.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
+      const walk = async (id, depth) => {
+        const r = await this._hass.callWS({ type: "media_source/browse_media", media_content_id: id });
+        if (!r) return;
+        const children = r.children || [];
+        if (!children.length && (r.media_class === "image" || String(r.media_content_type || "").startsWith("image") || r.can_play)) {
+          list.push({ id: r.media_content_id || id, thumb: r.thumbnail });
+          return;
+        }
+        for (const ch of children) {
+          if (list.length >= 500) break;
+          if (ch.media_class === "image" || String(ch.media_content_type || "").startsWith("image")) {
+            list.push({ id: ch.media_content_id, thumb: ch.thumbnail });
+          } else if (ch.can_expand && depth < 3) {
+            await walk(ch.media_content_id, depth + 1);
+          }
+        }
+      };
+      for (const src of sources) {
+        if (/^https?:\/\/|^\/local\//i.test(src)) list.push({ url: src });
+        else {
+          try { await walk(src, 0); } catch (e) { console.warn("home-calendar-card: could not browse photos_media", src, e); }
+        }
+      }
+    }
+    if (c.photos_shuffle !== false && list.length > 1) {
+      for (let i = list.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [list[i], list[j]] = [list[j], list[i]];
+      }
+    }
+    this._wpList = list;
+    this._wpIdx = -1;
+    if (!list.length) {
+      this._photosBox?.classList.add("is-empty");
+      return;
+    }
+    this._photosBox?.classList.remove("is-empty");
+    this._nextWallPhoto(1);
+    const iv = Math.max(5, Number(c.photos_interval) || 20) * 1000;
+    this._wpTimer = setInterval(() => this._nextWallPhoto(1), iv);
+  }
+
+  _stopWallPhotos() {
+    clearInterval(this._wpTimer);
+    this._wpTimer = null;
+  }
+
+  async _nextWallPhoto(dir = 1, tries = 0) {
+    const box = this._photosBox;
+    if (!box || box.hidden || !this._wpList?.length || tries > 3) return;
+    const len = this._wpList.length;
+    this._wpIdx = ((this._wpIdx ?? -1) + dir + len) % len;
+    const item = this._wpList[this._wpIdx];
+    let url = item.url || "";
+    if (!url && item.entity) {
+      const st = this._hass?.states?.[item.entity];
+      const pic = st?.attributes?.entity_picture;
+      if (pic) url = this._hass.hassUrl ? this._hass.hassUrl(pic) : pic;
+    }
+    if (!url && item.id && this._hass) {
+      try {
+        const r = await this._hass.callWS({ type: "media_source/resolve_media", media_content_id: item.id, expires: 3600 });
+        if (r?.url) url = this._hass.hassUrl ? this._hass.hassUrl(r.url) : r.url;
+      } catch (e) {
+        if (item.thumb) url = this._hass.hassUrl ? this._hass.hassUrl(item.thumb) : item.thumb;
+      }
+    }
+    if (!url) {
+      if (len > 1) this._nextWallPhoto(dir, tries + 1);
+      else box.classList.add("is-empty");
+      return;
+    }
+    const showUrl = (finalUrl) => {
+      if (!this._photosBox || this._photosBox.hidden) return;
+      const layers = this._photosBox.querySelectorAll(".wp-layer");
+      if (layers.length < 2) return;
+      const next = layers[this._wpFront ? 0 : 1];
+      const prev = layers[this._wpFront ? 1 : 0];
+      const css = `url("${String(finalUrl).replace(/"/g, "%22")}")`;
+      next.querySelector(".wp-bg").style.backgroundImage = css;
+      const im = next.querySelector(".wp-img");
+      im.style.backgroundImage = css;
+      im.style.animation = "none";
+      void im.offsetWidth;
+      im.style.animation = "";
+      next.classList.add("show");
+      prev.classList.remove("show");
+      this._wpFront = this._wpFront ? 0 : 1;
+      this._photosBox.classList.remove("is-empty");
+    };
+    if (typeof Image !== "undefined") {
+      const img = new Image();
+      img.onload = () => showUrl(url);
+      img.onerror = () => { if (len > 1) this._nextWallPhoto(dir, tries + 1); };
+      img.src = url;
+    } else {
+      showUrl(url);
+    }
+  }
+
+  _updateWallHtml() {
+    const box = this._htmlBox;
+    if (!box) return;
+    const c = this._config;
+    if (!hasCustomHtml(c)) {
+      box.hidden = true;
+      this._lastHtmlOut = null;
+      return;
+    }
+    box.hidden = false;
+    const title = String(c.html_title ?? "").trim();
+    const icon = String(c.html_icon || "mdi:text-box-outline").trim();
+    const raw = String(c.html_content || "")
+      .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "");
+    const interpolated = raw
+      .replace(/\{\{\s*states\(\s*['"]([^'"]+)['"]\s*\)\s*\}\}/g, (_, ent) => esc(this._hass?.states?.[ent]?.state ?? "–"))
+      .replace(/\{\{\s*state_attr\(\s*['"]([^'"]+)['"]\s*,\s*['"]([^'"]+)['"]\s*\)\s*\}\}/g, (_, ent, attr) => esc(this._hass?.states?.[ent]?.attributes?.[attr] ?? "–"));
+    const bodyHtml = interpolated.trim() || `<div class="wh-placeholder">${esc(this._t("ed_html_help"))}</div>`;
+    const out = `
+      ${title ? `<div class="wh-head">${icon ? `<ha-icon icon="${esc(icon)}"></ha-icon>` : ""}<span>${esc(title)}</span></div>` : ""}
+      <div class="wh-body">${bodyHtml}</div>`;
+    if (this._lastHtmlOut !== out) {
+      this._lastHtmlOut = out;
+      box.innerHTML = out;
+    }
   }
 
   _renderFsControls() {
@@ -3931,6 +4257,7 @@ class HomeCalendarCard extends HTMLElement {
     this._applyTheme();
     this._applyLayout();
     if (this._todoKey === null || this._todoKey === undefined || this._hass) this._buildTodo();
+    this._updateWallModules();
     const c = this._config;
     const body = this._view === "month" ? this._renderMonth() : this._view === "week" ? this._renderWeek() : this._view === "planner" ? this._renderPlanner() : this._renderAgenda();
     const maxH = c.max_height ? ` style="max-height:${esc(c.max_height)};overflow:auto"` : "";
@@ -3964,7 +4291,7 @@ class HomeCalendarCard extends HTMLElement {
     const L = normLayout(g);
     if (!this._isPhone) return L;
     // phones are touched anyway, so auto-hide blocks simply show in the stack
-    const rank = (b) => (b.name === "calendar" ? 1e4 : b.name === "todo" ? 2e4 : b.row * 100 + b.col);
+    const rank = (b) => (b.name === "calendar" ? 1e4 : ["photos", "custom_html", "todo"].includes(b.name) ? 2e4 : b.row * 100 + b.col);
     const order = L.blocks.filter((b) => b.show !== "hide").sort((a, b) => rank(a) - rank(b));
     const blocks = order.map((b, i) => ({ ...b, col: 1, w: 1, h: 1, row: i + 1, show: "show" }));
     return { columns: 1, rows: "auto", blocks, phone: true, stacked: true };
@@ -4015,7 +4342,7 @@ class HomeCalendarCard extends HTMLElement {
     let calRect = null;
     if (pop) {
       const cal = L.blocks.find((b) => b.name === "calendar");
-      const others = L.blocks.filter((b) => b.show === "show" && b.name !== "calendar" && b.name !== "todo" && (b.name !== "todo"));
+      const others = L.blocks.filter((b) => b.show === "show" && b.name !== "calendar" && b.name !== "todo");
       const box = (r1, c1, r2, c2) => ({ row: r1, col: c1, h: r2 - r1 + 1, w: c2 - c1 + 1 });
       const r1 = Math.min(cal.row, tbk.row); const r2 = Math.max(cal.row + cal.h, tbk.row + tbk.h) - 1;
       const c1 = Math.min(cal.col, tbk.col); const c2 = Math.max(cal.col + cal.w, tbk.col + tbk.w) - 1;
@@ -4047,7 +4374,7 @@ class HomeCalendarCard extends HTMLElement {
     let html = "";
     let hasAh = false;
     L.blocks.forEach((b) => {
-      if (b.name === "todo" || b.show === "hide") return;
+      if (b.name === "todo" || b.name === "photos" || b.name === "custom_html" || b.show === "hide") return;
       const inner = parts[b.name]();
       if (!inner && b.name !== "calendar") return;
       if (b.show === "autohide") hasAh = true;
@@ -4057,7 +4384,23 @@ class HomeCalendarCard extends HTMLElement {
     this._main.innerHTML = `${html}
       <div class="progress ${this._loading ? "on" : ""}"></div>
       ${this._error ? `<div class="error"><ha-icon icon="mdi:alert-circle-outline"></ha-icon>${esc(this._error)}</div>` : ""}`;
-    // the to-do list is a persistent element, so it's placed rather than re-drawn
+    // persistent sidecar elements: photos, custom_html, todo
+    const pb = L.blocks.find((b) => b.name === "photos");
+    if (this._photosBox) {
+      const showP = hasPhotos(c) && pb && pb.show !== "hide";
+      this._photosBox.classList.toggle("lg-off", !showP);
+      this._photosBox.classList.toggle("ah", !!showP && pb.show === "autohide");
+      if (showP && pb.show === "autohide") hasAh = true;
+      this._photosBox.style.gridArea = showP ? `${pb.row} / ${pb.col} / span ${pb.h} / span ${pb.w}` : "";
+    }
+    const hb = L.blocks.find((b) => b.name === "custom_html");
+    if (this._htmlBox) {
+      const showH = hasCustomHtml(c) && hb && hb.show !== "hide";
+      this._htmlBox.classList.toggle("lg-off", !showH);
+      this._htmlBox.classList.toggle("ah", !!showH && hb.show === "autohide");
+      if (showH && hb.show === "autohide") hasAh = true;
+      this._htmlBox.style.gridArea = showH ? `${hb.row} / ${hb.col} / span ${hb.h} / span ${hb.w}` : "";
+    }
     const tb = L.blocks.find((b) => b.name === "todo");
     const box = this._todoBox;
     if (box) {
@@ -4079,6 +4422,8 @@ class HomeCalendarCard extends HTMLElement {
     const inner = this._inner;
     inner.classList.remove("lg", "lg-phone", "lg-fixed", "ah-show");
     ["gridTemplateColumns", "gridTemplateRows", "gap", "padding"].forEach((k) => { inner.style[k] = ""; });
+    if (this._photosBox) { this._photosBox.style.gridArea = ""; this._photosBox.classList.remove("lg-off", "ah"); }
+    if (this._htmlBox) { this._htmlBox.style.gridArea = ""; this._htmlBox.classList.remove("lg-off", "ah"); }
     if (this._todoBox) { this._todoBox.style.gridArea = ""; this._todoBox.classList.remove("lg-off", "ah", "todo-pop", "pop-open"); }
     this._todoPopMode = false;
     this._todoPopOpen = false;
@@ -4999,6 +5344,7 @@ class HomeCalendarCard extends HTMLElement {
     }
     const el = e.composedPath().find((n) => n instanceof HTMLElement && n.dataset && n.dataset.action);
     if (!el) return;
+    if (this._displayMode() === "non_touch" && !["browser-fs", "fs-off", "fs-on"].includes(el.dataset.action)) return;
     if (el.dataset.action === "todo-pop") { this._setTodoPop(!this._todoPopOpen); return; }
     const { action } = el.dataset;
     switch (action) {
@@ -5164,6 +5510,12 @@ class HomeCalendarCard extends HTMLElement {
         break;
       case "more-info":
         this.dispatchEvent(new CustomEvent("hass-more-info", { detail: { entityId: el.dataset.entity }, bubbles: true, composed: true }));
+        break;
+      case "wp-prev":
+        this._nextWallPhoto(-1);
+        break;
+      case "wp-next":
+        this._nextWallPhoto(1);
         break;
       default:
     }
@@ -5433,9 +5785,11 @@ ha-icon { --mdc-icon-size: 18px; display: inline-flex; flex: none; }
 .more { font-size: .68rem; color: var(--hcc-muted); font-weight: 700; padding-left: 4px; }
 /* ---- grid layout (v1.17) */
 .inner.lg { display: grid !important; position: relative; align-items: stretch; }
-.inner.lg > .wrap { display: contents !important; }
-.inner.lg > .todo { margin: 0 !important; padding: 0 !important; border: none !important; width: auto !important; max-height: none !important; min-width: 0; min-height: 0; overflow: auto; }
-.inner.lg > .todo.lg-off, .inner.lg > .todo[hidden] { display: none !important; }
+.inner.lg > .wrap, .inner.lg > .sidecar { display: contents !important; }
+.inner.lg .todo, .inner.lg .wall-photos, .inner.lg .wall-html { margin: 0 !important; width: auto !important; max-height: none !important; min-width: 0; min-height: 0; overflow: auto; }
+.inner.lg .todo { padding: 0 !important; border: none !important; }
+.inner.lg .wall-photos { overflow: hidden; min-height: 140px; }
+.inner.lg .todo.lg-off, .inner.lg .todo[hidden], .inner.lg .wall-photos.lg-off, .inner.lg .wall-photos[hidden], .inner.lg .wall-html.lg-off, .inner.lg .wall-html[hidden] { display: none !important; }
 .lb { min-width: 0; min-height: 0; container-type: inline-size; position: relative; }
 .lb > .cds { margin: 0; padding: 2px 0 4px; }
 .lb > .chips, .lb > .toolbar { margin: 0; }
@@ -5461,11 +5815,11 @@ ha-icon { --mdc-icon-size: 18px; display: inline-flex; flex: none; }
 .inner.lg .error { grid-column: 1 / -1; grid-row: 1; align-self: start; z-index: 6; background: var(--hcc-bg); padding: 6px 10px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,.15); }
 /* auto-hide blocks: invisible until a tap, then they fade in on top (they may overlap other blocks) */
 /* to-do pop-up (Layout designer, to-do block on Auto-hide) */
-.inner.lg > .todo.todo-pop { position: relative; z-index: 9; display: flex !important; align-self: stretch; min-height: 0; flex-direction: column; padding: 14px 16px !important; border-radius: 18px; background: var(--hcc-bg);
+.inner.lg .todo.todo-pop { position: relative; z-index: 9; display: flex !important; align-self: stretch; min-height: 0; flex-direction: column; padding: 14px 16px !important; border-radius: 18px; background: var(--hcc-bg);
   box-shadow: 0 12px 40px rgba(0,0,0,.28), 0 0 0 1px var(--hcc-line); opacity: 0; transform: translateY(10px) scale(.98); transform-origin: center;
   pointer-events: none; transition: opacity .18s, transform .18s; overflow: hidden; }
-.inner.lg > .todo.todo-pop.pop-open { opacity: 1; transform: none; pointer-events: auto; }
-.inner.lg > .todo.todo-pop .todo-list { flex: 1; min-height: 0; overflow: auto; }
+.inner.lg .todo.todo-pop.pop-open { opacity: 1; transform: none; pointer-events: auto; }
+.inner.lg .todo.todo-pop .todo-list { flex: 1; min-height: 0; overflow: auto; }
 .todo-fab { position: absolute; right: 16px; bottom: 16px; z-index: 10; display: inline-flex; align-items: center; gap: 8px; height: 46px; min-width: 46px;
   justify-content: center; padding: 0 14px; border-radius: 999px; border: none; cursor: pointer; background: var(--hcc-accent); color: #fff; font: inherit;
   font-weight: 800; box-shadow: 0 6px 18px color-mix(in srgb, var(--hcc-accent) 45%, transparent); }
@@ -5624,9 +5978,60 @@ textarea.inp { resize: vertical; }
 .f-err { color: var(--error-color, #db4437); font-size: .85rem; font-weight: 600; }
 .f-err:empty { display: none; }
 
-/* to-do */
-.todo { container-type: inline-size; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--hcc-line); }
-.todo[hidden] { display: none; }
+/* to-do & sidecar modules */
+.sidecar { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--hcc-line); min-width: 0; }
+.sidecar[hidden] { display: none !important; }
+.todo { container-type: inline-size; margin: 0; padding: 0; border: none; }
+.todo[hidden], .wall-photos[hidden], .wall-html[hidden] { display: none !important; }
+
+/* wall photos module (Google Photos / Media Source / entity slideshow) */
+.wall-photos { position: relative; border-radius: 18px; overflow: hidden; background: var(--hcc-soft); border: 1px solid var(--hcc-line);
+  min-height: 220px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.05); }
+.wp-layer { position: absolute; inset: 0; opacity: 0; transition: opacity 1.4s ease-in-out; pointer-events: none; }
+.wp-layer.show { opacity: 1; }
+.wp-bg { position: absolute; inset: -32px; background-size: cover; background-position: center; filter: blur(28px) brightness(.55) saturate(1.2); opacity: 0; }
+.wall-photos.fit-contain .wp-bg { opacity: 1; }
+.wp-img { position: absolute; inset: 0; background-size: cover; background-repeat: no-repeat; background-position: center; transform-origin: 50% 45%; }
+.wall-photos.fit-contain .wp-img { background-size: contain; }
+.wall-photos.kb-on .wp-layer.show .wp-img, .wall-photos.ken-burns .wp-layer.show .wp-img { animation: kenburns 26s ease-out forwards; }
+.wp-shade { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.62) 0%, rgba(0,0,0,.12) 32%, transparent 55%); pointer-events: none; }
+.wall-photos.is-empty .wp-shade, .wall-photos.is-empty .wp-nav, .wall-photos.is-empty .wp-title { display: none; }
+.wp-title { position: absolute; left: 14px; right: 84px; bottom: 12px; color: #fff; font-weight: 700; font-size: .92rem;
+  display: inline-flex; align-items: center; gap: 6px;
+  text-shadow: 0 2px 8px rgba(0,0,0,.65); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; z-index: 2; }
+.wp-title ha-icon { --mdc-icon-size: 18px; flex: none; }
+.wp-title span { overflow: hidden; text-overflow: ellipsis; }
+.wp-title:empty { display: none; }
+.wp-nav { position: absolute; right: 10px; bottom: 8px; display: flex; gap: 6px; z-index: 2; opacity: 0; transition: opacity .2s; }
+.wall-photos:hover .wp-nav, :host([data-display="touch"]) .wp-nav { opacity: 1; }
+.wp-btn { width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,.45); color: #fff; backdrop-filter: blur(6px);
+  display: grid; place-items: center; cursor: pointer; border: 1px solid rgba(255,255,255,.18); transition: background .15s, transform .12s; }
+.wp-btn:hover { background: rgba(0,0,0,.7); }
+.wp-btn:active { transform: scale(.94); }
+.wp-btn ha-icon { --mdc-icon-size: 20px; }
+.wp-empty { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; padding: 20px; text-align: center; color: var(--hcc-muted); font-size: .85rem; }
+.wall-photos.is-empty .wp-empty { display: flex; }
+.wp-empty ha-icon { --mdc-icon-size: 36px; color: var(--hcc-accent); opacity: .75; }
+.wp-empty-t, .wp-empty b { color: var(--hcc-text); font-weight: 700; font-size: .92rem; }
+.wp-empty-s, .wp-empty span { font-size: .76rem; line-height: 1.35; max-width: 28ch; }
+
+/* wall custom HTML / text module */
+.wall-html { background: var(--hcc-soft); border: 1px solid var(--hcc-line); border-radius: 18px; padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
+.wh-head { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 1rem; color: var(--hcc-text);
+  border-bottom: 1px solid var(--hcc-line); padding-bottom: 8px; flex: none; }
+.wh-head[hidden] { display: none !important; }
+.wh-head ha-icon { color: var(--hcc-accent); --mdc-icon-size: 20px; flex: none; }
+.wh-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wh-body { font-size: .92rem; line-height: 1.5; color: var(--hcc-text); overflow: auto; min-height: 0; word-break: break-word; }
+.wh-body > :first-child { margin-top: 0; }
+.wh-body > :last-child { margin-bottom: 0; }
+.wh-body a { color: var(--hcc-accent); }
+.wh-body h1, .wh-body h2, .wh-body h3, .wh-body h4 { margin: .35em 0 .2em; line-height: 1.25; }
+.wh-body ul, .wh-body ol { padding-left: 1.3em; margin: .35em 0; }
+.wh-body hr { border: none; border-top: 1px solid var(--hcc-line); margin: 8px 0; }
+.wh-placeholder { color: var(--hcc-muted); font-style: italic; font-size: .85rem; }
 .todo-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
 .todo-tabs { display: flex; gap: 6px; min-width: 0; flex: 1 1 auto; overflow-x: auto; scrollbar-width: none; }
 .todo-tabs::-webkit-scrollbar { display: none; }
@@ -5701,7 +6106,8 @@ dialog { zoom: var(--hcc-zoom, 1); }
   height: 100%; box-sizing: border-box; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
 :host([layout="fill"]) .wrap, :host([layout="fullscreen"]) .wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 :host([layout="fill"]) .wrap > .body, :host([layout="fullscreen"]) .wrap > .body { flex: 1; min-height: 0; overflow: auto; max-height: none !important; }
-:host([layout="fill"]) .todo, :host([layout="fullscreen"]) .todo { flex: none; max-height: 40%; margin-top: 0; display: flex; flex-direction: column; min-height: 0; }
+:host([layout="fill"]) .sidecar, :host([layout="fullscreen"]) .sidecar { flex: none; max-height: 40%; margin-top: 0; display: flex; flex-direction: column; min-height: 0; }
+:host([layout="fill"]) .todo, :host([layout="fullscreen"]) .todo { flex: 1; margin-top: 0; display: flex; flex-direction: column; min-height: 0; }
 :host([layout="fill"]) .todo[hidden], :host([layout="fullscreen"]) .todo[hidden] { display: none; }
 :host([layout="fill"]) .todo-list, :host([layout="fullscreen"]) .todo-list { flex: 1; min-height: 0; overflow: auto; align-content: start; }
 /* month fills the height */
@@ -5725,30 +6131,36 @@ dialog { zoom: var(--hcc-zoom, 1); }
   .view-week { overflow: auto !important; }
   .week-view, .wrow, .week { height: auto !important; display: flex !important; flex-direction: column; }
 }
-/* to-do position: top / bottom / left / right */
+/* sidebar / to-do position: top / bottom / left / right */
 ha-card { container: hcc / inline-size; }
-.inner.pos-top .todo { order: -1; margin: 0 0 16px; padding: 0 0 14px; border-top: none; border-bottom: 1px solid var(--hcc-line); }
-:host([layout="fill"]) .inner.pos-top .todo, :host([layout="fullscreen"]) .inner.pos-top .todo { margin: 0; }
-@container hcc (min-width: 900px) {
+.inner.pos-top > .sidecar { order: -1; margin: 0 0 16px; padding: 0 0 14px; border-top: none; border-bottom: 1px solid var(--hcc-line); }
+:host([layout="fill"]) .inner.pos-top > .sidecar, :host([layout="fullscreen"]) .inner.pos-top > .sidecar { margin: 0; }
+@container hcc (min-width: 760px) {
   .inner.has-todo.pos-left, .inner.has-todo.pos-right { display: flex; flex-direction: row; align-items: stretch; gap: 24px; }
   .inner.has-todo.pos-left > .wrap, .inner.has-todo.pos-right > .wrap { flex: 1; min-width: 0; }
-  .inner.pos-left > .todo, .inner.pos-right > .todo { width: 350px; flex: none; margin: 0; border-top: none; max-height: none; transition: width .25s; }
-  .inner.pos-right > .todo { border-left: 1px solid var(--hcc-line); padding: 0 0 0 24px; }
-  .inner.pos-left > .todo { order: -1; border-right: 1px solid var(--hcc-line); padding: 0 24px 0 0; }
-  /* collapsed side panel = slim vertical tab */
-  .inner.pos-left > .todo.collapsed, .inner.pos-right > .todo.collapsed { width: 44px; }
-  .inner.pos-right > .todo.collapsed { padding-left: 12px; }
-  .inner.pos-left > .todo.collapsed { padding-right: 12px; }
-  .inner.pos-left > .todo.collapsed .todo-head, .inner.pos-right > .todo.collapsed .todo-head { flex-direction: column; gap: 10px; margin: 0; padding: 8px 0; height: 100%; justify-content: flex-start; }
-  .inner.pos-left > .todo.collapsed .todo-title, .inner.pos-right > .todo.collapsed .todo-title { writing-mode: vertical-rl; transform: rotate(180deg); }
-  .inner.pos-right > .todo .todo-chev { transform: rotate(-90deg); }
-  .inner.pos-right > .todo.collapsed .todo-chev { transform: rotate(90deg); }
-  .inner.pos-left > .todo .todo-chev { transform: rotate(90deg); }
-  .inner.pos-left > .todo.collapsed .todo-chev { transform: rotate(-90deg); }
+  .inner.pos-left > .sidecar, .inner.pos-right > .sidecar { width: var(--hcc-side-w, 350px); flex: none; margin: 0; border-top: none; max-height: none; min-height: 0; transition: width .25s; }
+  .inner.pos-right > .sidecar { border-left: 1px solid var(--hcc-line); padding: 0 0 0 24px; }
+  .inner.pos-left > .sidecar { order: -1; border-right: 1px solid var(--hcc-line); padding: 0 24px 0 0; }
+  .inner.pos-left > .sidecar > .wall-photos, .inner.pos-right > .sidecar > .wall-photos { flex: 1.25 1 180px; min-height: 150px; }
+  .inner.pos-left > .sidecar > .wall-html, .inner.pos-right > .sidecar > .wall-html { flex: 0 1 auto; max-height: 45%; min-height: 0; }
+  .inner.pos-left > .sidecar > .todo, .inner.pos-right > .sidecar > .todo { flex: 1 1 160px; max-height: none; min-height: 0; display: flex; flex-direction: column; }
+  /* collapsed side panel = slim vertical tab when only to-do is shown */
+  .inner.pos-left > .sidecar:has(> .todo.collapsed):not(:has(> .wall-photos:not([hidden]))):not(:has(> .wall-html:not([hidden]))),
+  .inner.pos-right > .sidecar:has(> .todo.collapsed):not(:has(> .wall-photos:not([hidden]))):not(:has(> .wall-html:not([hidden]))) { width: 44px; }
+  .inner.pos-right > .sidecar:has(> .todo.collapsed):not(:has(> .wall-photos:not([hidden]))):not(:has(> .wall-html:not([hidden]))) { padding-left: 12px; }
+  .inner.pos-left > .sidecar:has(> .todo.collapsed):not(:has(> .wall-photos:not([hidden]))):not(:has(> .wall-html:not([hidden]))) { padding-right: 12px; }
+  .inner.pos-left > .sidecar .todo.collapsed .todo-head, .inner.pos-right > .sidecar .todo.collapsed .todo-head { flex-direction: column; gap: 10px; margin: 0; padding: 8px 0; height: 100%; justify-content: flex-start; }
+  .inner.pos-left > .sidecar .todo.collapsed .todo-title, .inner.pos-right > .sidecar .todo.collapsed .todo-title { writing-mode: vertical-rl; transform: rotate(180deg); }
+  .inner.pos-right > .sidecar .todo .todo-chev { transform: rotate(-90deg); }
+  .inner.pos-right > .sidecar .todo.collapsed .todo-chev { transform: rotate(90deg); }
+  .inner.pos-left > .sidecar .todo .todo-chev { transform: rotate(90deg); }
+  .inner.pos-left > .sidecar .todo.collapsed .todo-chev { transform: rotate(-90deg); }
 }
 /* top / bottom in full-page layouts: one compact horizontal strip */
-:host([layout="fill"]) .inner.pos-top > .todo, :host([layout="fill"]) .inner.pos-bottom > .todo,
-:host([layout="fullscreen"]) .inner.pos-top > .todo, :host([layout="fullscreen"]) .inner.pos-bottom > .todo { max-height: 34%; }
+:host([layout="fill"]) .inner.pos-top > .sidecar, :host([layout="fill"]) .inner.pos-bottom > .sidecar,
+:host([layout="fullscreen"]) .inner.pos-top > .sidecar, :host([layout="fullscreen"]) .inner.pos-bottom > .sidecar { max-height: 36%; flex-direction: row; align-items: stretch; }
+:host([layout="fill"]) .inner.pos-top > .sidecar > *, :host([layout="fill"]) .inner.pos-bottom > .sidecar > *,
+:host([layout="fullscreen"]) .inner.pos-top > .sidecar > *, :host([layout="fullscreen"]) .inner.pos-bottom > .sidecar > * { flex: 1 1 0; min-width: 0; min-height: 0; }
 :host([layout="fill"]) .inner.pos-top .todo-list, :host([layout="fill"]) .inner.pos-bottom .todo-list,
 :host([layout="fullscreen"]) .inner.pos-top .todo-list, :host([layout="fullscreen"]) .inner.pos-bottom .todo-list {
   grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(250px, 320px); overflow-x: auto; overflow-y: auto; margin-bottom: 10px; }
@@ -5761,12 +6173,29 @@ ha-card { container: hcc / inline-size; }
 .todo.autohide .todo-head:hover { background: var(--hcc-soft); }
 .todo-chev { margin-left: auto; color: var(--hcc-muted); transition: transform .25s; }
 .todo.collapsed .todo-chev { transform: rotate(180deg); }
-.inner.pos-top > .todo.collapsed .todo-chev { transform: none; }
-.inner.pos-top > .todo:not(.collapsed) .todo-chev { transform: rotate(180deg); }
+.inner.pos-top .todo.collapsed .todo-chev { transform: none; }
+.inner.pos-top .todo:not(.collapsed) .todo-chev { transform: rotate(180deg); }
 .todo.collapsed .todo-list, .todo.collapsed .todo-add, .todo.collapsed .todo-err { display: none !important; }
 .todo.collapsed .todo-head { margin-bottom: 0; }
-.inner.pos-top > .todo.collapsed { padding-bottom: 10px; }
+.inner.pos-top .todo.collapsed { padding-bottom: 10px; }
 .todo.collapsed .todo-count:empty { display: none; }
+
+/* wall display: zero-scroll & non-touch monitor rules */
+:host([wall-card]) ha-card { overflow: hidden !important; }
+:host([wall-card]) .wrap > .body.view-month, :host([wall-card]) .wrap > .body.view-week,
+:host([wall-card]) .lb-calendar > .body.view-month, :host([wall-card]) .lb-calendar > .body.view-week { overflow: hidden !important; }
+:host([wall-card]) .mevs, :host([wall-card]) .wevs { overflow: hidden !important; scrollbar-width: none; }
+:host([wall-card]) .mevs::-webkit-scrollbar, :host([wall-card]) .wevs::-webkit-scrollbar { display: none; }
+:host([data-display="non_touch"]) { user-select: none; -webkit-user-select: none; }
+:host([data-display="non_touch"]) .toolbar, :host([data-display="non_touch"]) .lb-views,
+:host([data-display="non_touch"]) .lb-nav, :host([data-display="non_touch"]) .lb-add,
+:host([data-display="non_touch"]) .todo-add, :host([data-display="non_touch"]) .wp-nav,
+:host([data-display="non_touch"]) .fs-ctl, :host([data-display="non_touch"]) .padd,
+:host([data-display="non_touch"]) .todo-chev { display: none !important; }
+:host([data-display="non_touch"]) .ev, :host([data-display="non_touch"]) .wev,
+:host([data-display="non_touch"]) .mev, :host([data-display="non_touch"]) .mcell,
+:host([data-display="non_touch"]) .whead, :host([data-display="non_touch"]) .aday-date,
+:host([data-display="non_touch"]) .chip, :host([data-display="non_touch"]) .cd { cursor: default !important; pointer-events: none !important; }
 /* full-screen controls & toast */
 .fs-ctl { position: absolute; right: 10px; top: 10px; display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--hcc-bg);
   box-shadow: 0 2px 10px rgba(0,0,0,.25); opacity: 0; pointer-events: none; transition: opacity .3s; z-index: 4; zoom: var(--hcc-zoom, 1); }
@@ -5935,17 +6364,73 @@ const TRAVEL_DEFAULTS = { enabled: false, origin: "zone.home", region: "auto", v
 // editor defaults that are not written to YAML until changed
 const LOOK_DEFAULTS = { countdown_style: "cards", countdown_size: 100, event_size: 100, month_event_style: "cards", month_mobile: "list", show_clock: false, clock_seconds: true,
   clock_format: "auto", show_view_selector: true, show_date_navigation: true, event_time_position: "above", show_event_location: true,
-  show_event_calendar: true, multiday_bars: true, agenda_multiday: "every", todo_show_empty: true, planner_days: 7, planner_start: "week", month_start: "week", week_weeks: 1, week_start: "week", week_step: "all", agenda_date: "both" };
+  show_event_calendar: true, multiday_bars: true, agenda_multiday: "every", todo_show_empty: true, planner_days: 7, planner_start: "week", month_start: "week", week_weeks: 1, week_start: "week", week_step: "all", agenda_date: "both",
+  wall_view: "month", target_resolution: "auto", resolution_width: 1920, resolution_height: 1080, display_mode: "touch",
+  sidebar_position: "right", sidebar_width: 30, photos_enabled: false, photos_interval: 20, photos_fit: "cover", photos_shuffle: true, photos_ken_burns: true,
+  html_enabled: false, html_icon: "mdi:text-box-outline" };
 const GENERAL_KEYS = ["title", "language", "weather_entity", "todo_entity", "todo_title", "todo_position", "todo_autohide",
   "todo_lists", "todo_group_by", "todo_show_empty", "todo_days_ahead", "todo_calendar", "todo_show_completed", "todo_completed_days",
   "show_countdowns", "countdown_style", "countdown_size", "event_size", "show_calendar_chips", "month_event_style", "month_mobile",
   "sections", "show_view_selector", "show_date_navigation", "agenda_date", "agenda_multiday", "event_time_position", "show_event_location", "show_event_calendar",
   "show_clock", "clock_seconds", "clock_format",
+  "wall_view", "target_resolution", "resolution_width", "resolution_height", "display_mode", "sidebar_position", "sidebar_width",
+  "photos_enabled", "photos_title", "photos_media", "photos_entity", "photos_interval", "photos_fit", "photos_shuffle", "photos_ken_burns",
+  "html_enabled", "html_title", "html_icon", "html_content",
   "default_view", "days_to_show", "show_week_numbers", "multiday_bars", "planner_days", "planner_start", "month_weeks", "month_start", "week_weeks", "week_start", "week_step", "max_events_per_day", "first_day_of_week", "time_format", "layout", "keep_awake", "show_header", "allow_add",
   "allow_edit", "allow_delete", "show_empty_days", "max_height"];
-const generalSchema = (t, hasGrid = false) => {
+const generalSchema = (t, hasGrid = false, isWall = false) => {
   const o = (value, key) => ({ value, label: t(key) });
+  const wallSection = {
+    type: "expandable", name: "wall_cfg", flatten: true, expanded: isWall, title: t("ed_wall"), icon: "mdi:television-guide", schema: [
+      { type: "grid", name: "", schema: [
+        { name: "wall_view", selector: { select: { mode: "dropdown", options: [
+          o("month", "o_wv_month"), o("3weeks", "o_wv_3weeks"), o("multiweek", "o_wv_multiweek"), o("agenda", "agenda"), o("planner", "planner")] } } },
+        { name: "display_mode", selector: { select: { mode: "dropdown", options: [
+          o("touch", "o_dm_touch"), o("non_touch", "o_dm_non_touch"), o("auto", "o_dm_auto")] } } },
+        { name: "target_resolution", selector: { select: { mode: "dropdown", options: [
+          o("auto", "o_res_auto"), o("1920x1080", "o_res_1080p"), o("2560x1440", "o_res_1440p"), o("3840x2160", "o_res_4k"),
+          o("1920x1200", "o_res_1200p"), o("1080x1920", "o_res_portrait"), o("custom", "o_res_custom")] } } },
+        { name: "layout", selector: { select: { mode: "dropdown", options: [o("card", "o_card"), o("fill", "o_fill"), o("fullscreen", "o_fullscreen")] } } },
+        { name: "resolution_width", selector: { number: { min: 480, max: 7680, step: 10, mode: "box", unit_of_measurement: "px" } } },
+        { name: "resolution_height", selector: { number: { min: 480, max: 7680, step: 10, mode: "box", unit_of_measurement: "px" } } },
+      ] },
+      ...(hasGrid ? [] : [
+        { type: "grid", name: "", schema: [
+          { name: "sidebar_position", selector: { select: { mode: "dropdown", options: [
+            o("right", "o_right"), o("left", "o_left"), o("top", "o_top"), o("bottom", "o_bottom"), o("auto", "o_auto")] } } },
+          { name: "sidebar_width", selector: { number: { min: 18, max: 50, step: 1, mode: "slider", unit_of_measurement: "%" } } },
+        ] },
+      ]),
+    ],
+  };
+  const photosSection = {
+    type: "expandable", name: "photos_cfg", flatten: true, expanded: isWall, title: t("ed_photos"), icon: "mdi:image-album", schema: [
+      { type: "grid", name: "", schema: [
+        { name: "photos_enabled", selector: { boolean: {} } },
+        { name: "photos_title", selector: { text: {} } },
+      ] },
+      { name: "photos_media", selector: { text: {} } },
+      { name: "photos_entity", selector: { entity: { domain: ["image", "camera"] } } },
+      { type: "grid", name: "", schema: [
+        { name: "photos_interval", selector: { number: { min: 5, max: 600, step: 5, mode: "box", unit_of_measurement: "s" } } },
+        { name: "photos_fit", selector: { select: { mode: "dropdown", options: [o("cover", "o_fit_cover"), o("contain", "o_fit_contain")] } } },
+        { name: "photos_shuffle", selector: { boolean: {} } },
+        { name: "photos_ken_burns", selector: { boolean: {} } },
+      ] },
+    ],
+  };
+  const htmlSection = {
+    type: "expandable", name: "html_cfg", flatten: true, expanded: isWall, title: t("ed_html"), icon: "mdi:text-box-edit-outline", schema: [
+      { type: "grid", name: "", schema: [
+        { name: "html_enabled", selector: { boolean: {} } },
+        { name: "html_title", selector: { text: {} } },
+        { name: "html_icon", selector: { icon: {} } },
+      ] },
+      { name: "html_content", selector: { text: { multiline: true } } },
+    ],
+  };
   return [
+    ...(isWall ? [wallSection, photosSection, htmlSection] : []),
     { type: "grid", name: "", schema: [
       { name: "title", selector: { text: {} } },
       { name: "language", selector: { select: { mode: "dropdown", options: [o("auto", "o_lang_auto"),
@@ -6057,6 +6542,7 @@ const generalSchema = (t, hasGrid = false) => {
       { name: "media", selector: { text: {} } },
       { name: "show_info", selector: { boolean: {} } },
     ] },
+    ...(isWall ? [] : [wallSection, photosSection, htmlSection]),
   ];
 };
 const calSchema = (t) => {
@@ -6438,6 +6924,12 @@ class HccLayoutDesigner extends HTMLElement {
         <label class="f">${esc(t("ld_todo_close"))} <input type="number" min="5" max="600" step="5" data-ld-opt="todo_autohide" value="${esc(Number(c.todo_autohide) > 0 ? c.todo_autohide : 30)}"></label>` : "";
     } else if (n === "countdowns") {
       extra = `<label class="f">${esc(t("l_countdown_style"))} ${sel("countdown_style", [["cards", "o_cards"], ["compact", "o_compact"]], c.countdown_style || "cards")}</label>`;
+    } else if (n === "photos") {
+      extra = `<label class="f">${esc(t("l_photos_fit"))} ${sel("photos_fit", [["cover", "o_fit_cover"], ["contain", "o_fit_contain"]], c.photos_fit || "cover")}</label>
+        <label class="f">${esc(t("l_photos_interval"))} <input type="number" min="5" max="600" step="5" data-ld-opt="photos_interval" value="${esc(Number(c.photos_interval) > 0 ? c.photos_interval : 20)}"></label>
+        <label class="f"><input type="checkbox" data-ld-opt="photos_ken_burns" ${c.photos_ken_burns !== false ? "checked" : ""}> ${esc(t("l_photos_ken_burns"))}</label>`;
+    } else if (n === "custom_html") {
+      extra = `<label class="f">${esc(t("l_html_title"))} <input type="text" data-ld-opt="html_title" value="${esc(c.html_title || "")}"></label>`;
     }
     return `<div class="panel">
       <div class="ph"><ha-icon icon="${BLOCK_ICONS[n]}"></ha-icon>${esc(t(`lb_${n}`))}<span class="sp"></span><button class="link" data-ld="desel">${esc(t("close"))}</button></div>
@@ -6473,7 +6965,7 @@ class HccLayoutDesigner extends HTMLElement {
       case "unhide": {
         const L = this._lay();
         const b = L.blocks[d.b];
-        const want = { date: 4, clock: 3, weather: 3, views: 4, nav: 4, add: 2, todo: 4 }[d.b] || L.columns;
+        const want = { date: 4, clock: 3, weather: 3, views: 4, nav: 4, add: 2, todo: 4, photos: 4, custom_html: 4 }[d.b] || L.columns;
         const spot = this._firstFree(L, Math.min(Math.max(b.w, want), L.columns), b.h);
         Object.assign(b, spot, { show: "show" });
         this.state.sel = d.b;
@@ -6908,13 +7400,21 @@ class HomeCalendarCardEditor extends HTMLElement {
     });
     this.shadowRoot.querySelector(".slot-layout").appendChild(lay);
 
-    const gen = this._makeForm(generalSchema((k) => this._t(k), !!this._config.grid), {
-      ...LOOK_DEFAULTS, language: "auto", ...this._config, sections: sectionList(this._config),
+    const gen = this._makeForm(generalSchema((k) => this._t(k), !!this._config.grid, !!this._isWallCard), {
+      ...LOOK_DEFAULTS, ...(this._isWallCard ? { show_clock: true, layout: "fill", photos_enabled: true, html_enabled: true } : {}),
+      language: "auto", ...this._config, sections: sectionList(this._config),
       todo_lists: todoTabLists(this._config).map((t) => t.entity),
       night_mode: { ...NIGHT_DEFAULTS, ...this._objCfg(this._config.night_mode) },
       travel_time: { ...TRAVEL_DEFAULTS, ...(this._config.travel_time ? { enabled: true } : {}), ...this._objCfg(this._config.travel_time) },
       screensaver: { ...SAVER_DEFAULTS, ...this._objCfg(this._config.screensaver) },
-    }, (s) => this._t(`l_${s.name}`), (s) => (s.name === "media" ? this._t("ed_media_help") : s.name === "origin" ? this._t("ed_origin_help") : s.name === "todo_lists" ? this._t("ed_todo_lists_help") : undefined));
+    }, (s) => this._t(`l_${s.name}`), (s) => (
+      s.name === "media" ? this._t("ed_media_help")
+      : s.name === "photos_media" ? this._t("ed_photos_media_help")
+      : s.name === "html_content" ? this._t("ed_html_help")
+      : s.name === "origin" ? this._t("ed_origin_help")
+      : s.name === "todo_lists" ? this._t("ed_todo_lists_help")
+      : undefined
+    ));
     gen.addEventListener("value-changed", (ev) => {
       ev.stopPropagation();
       gen.data = ev.detail.value;
@@ -6945,7 +7445,8 @@ class HomeCalendarCardEditor extends HTMLElement {
         ["show_header", "show_countdowns", "show_calendar_chips"].forEach((k) => delete next[k]);
         if (JSON.stringify(next.sections) === JSON.stringify(SECTIONS)) delete next.sections;
       }
-      Object.entries(LOOK_DEFAULTS).forEach(([k, v]) => { if (next[k] === v && this._config[k] === undefined) delete next[k]; });
+      const lookDefs = this._isWallCard ? { ...LOOK_DEFAULTS, show_clock: true, layout: "fill", photos_enabled: true, html_enabled: true } : LOOK_DEFAULTS;
+      Object.entries(lookDefs).forEach(([k, v]) => { if (next[k] === v && this._config[k] === undefined) delete next[k]; });
       if (next.language !== this._config.language) { this._emit(next, true); return; } // re-draw in the new language
       this._emit(next);
     });
@@ -7034,12 +7535,56 @@ class HomeCalendarCardEditor extends HTMLElement {
   }
 }
 
+class HomeWallCalendarCardEditor extends HomeCalendarCardEditor {
+  constructor() {
+    super();
+    this._isWallCard = true;
+  }
+}
+
+class HomeWallCalendarCard extends HomeCalendarCard {
+  constructor() {
+    super();
+    this._isWallCard = true;
+  }
+
+  static getConfigElement() {
+    return document.createElement("home-wall-calendar-card-editor");
+  }
+
+  static getStubConfig(hass) {
+    const base = HomeCalendarCard.getStubConfig(hass);
+    return {
+      ...base,
+      wall_view: "month",
+      month_event_style: "cards",
+      show_clock: true,
+      layout: "fill",
+      target_resolution: "1920x1080",
+      display_mode: "touch",
+      sidebar_position: "right",
+      sidebar_width: 30,
+      photos_enabled: true,
+      photos_title: "Family Photos",
+      html_enabled: true,
+      html_title: "Family Notes",
+      html_content: "<h3>Welcome Home!</h3><p>Add your family notes, Wi-Fi info, or Home Assistant entity states here.</p>",
+    };
+  }
+}
+
 if (!customElements.get("home-calendar-card-editor")) {
   customElements.define("home-calendar-card-editor", HomeCalendarCardEditor);
+}
+if (!customElements.get("home-wall-calendar-card-editor")) {
+  customElements.define("home-wall-calendar-card-editor", HomeWallCalendarCardEditor);
 }
 
 if (!customElements.get("home-calendar-card")) {
   customElements.define("home-calendar-card", HomeCalendarCard);
+}
+if (!customElements.get("home-wall-calendar-card")) {
+  customElements.define("home-wall-calendar-card", HomeWallCalendarCard);
 }
 window.customCards = window.customCards || [];
 if (!window.customCards.some((c) => c.type === "home-calendar-card")) {
@@ -7048,7 +7593,16 @@ if (!window.customCards.some((c) => c.type === "home-calendar-card")) {
     name: "Home Calendar Card",
     description: "Google / Apple / any HA calendars in Agenda, Week and Month views with weather and add-event support.",
     preview: true,
-    documentationURL: "https://github.com/mimikm/Home-Calendar-Card",
+    documentationURL: "https://github.com/ninjass33/Home-Calendar-Card",
+  });
+}
+if (!window.customCards.some((c) => c.type === "home-wall-calendar-card")) {
+  window.customCards.push({
+    type: "home-wall-calendar-card",
+    name: "Home Wall Calendar Card",
+    description: "Zero-scroll Wall Display Calendar (Month or 3-Week view with event times) + Google Photos slideshow, live clock, weather, and custom HTML sidebar.",
+    preview: true,
+    documentationURL: "https://github.com/ninjass33/Home-Calendar-Card",
   });
 }
 console.info(`%c HOME-CALENDAR-CARD %c v${CARD_VERSION} `,
